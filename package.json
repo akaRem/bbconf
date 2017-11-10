@@ -1,0 +1,8 @@
+{
+  "name": "bbconf",
+  "version": "1.0.0",
+  "description": "BitBucket configurator",
+  "main": "index.js",
+  "author": "iremizov@gmail.com",
+  "license": "MIT"
+}
