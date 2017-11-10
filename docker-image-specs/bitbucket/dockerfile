@@ -1,0 +1,41 @@
+FROM centos:7
+
+ENV JAVA_HOME=/usr/lib/jvm/jre-openjdk
+RUN yum -y install which java-1.8.0-openjdk wget
+
+RUN yum install -y https://centos7.iuscommunity.org/ius-release.rpm && \
+    yum --enablerepo=ius-archive install -y git2u
+
+RUN cd /etc/yum.repos.d/ && wget http://sdkrepo.atlassian.com/atlassian-sdk-stable.repo && \
+    yum install -y atlassian-plugin-sdk
+
+EXPOSE 7990
+
+RUN atlas-run-standalone \
+    --product bitbucket \
+    --http-port 7990 \
+    --maven-plugin-version 6.3.4 \
+    --jvmargs "-Datlassian.upm.on.demand=false -DallowGoogleTracking=false" -X -N
+
+CMD /usr/lib/jvm/java-1.8.0-openjdk-1.8.0.144-0.b01.el7_4.x86_64/jre/bin/java \
+    '-Datlassian.upm.on.demand=false' \
+    '-Xmx1g' \
+    '-Dbitbucket.home=/amps-standalone-bitbucket-LATEST/target/bitbucket/home' \
+    '-Dcom.sun.management.jmxremote.ssl=false' \
+    '-Dplugin.root.directories=/amps-standalone-bitbucket-LATEST' \
+    '-Dcom.sun.management.jmxremote.port=7995' \
+    '-Djohnson.spring.lifecycle.synchronousStartup=true' \
+    '-Dcom.sun.management.jmxremote.host=127.0.0.1' \
+    '-Dcom.sun.management.jmxremote.authenticate=false' \
+    '-Dbaseurl=http://127.0.0.1:7990/bitbucket' \
+    '-Dplugin.resource.directories=' \
+    '-Datlassian.dev.mode=true' \
+    '-Djava.rmi.server.hostname=127.0.0.1' \
+    '-Djava.awt.headless=true' \
+    '-Dbaseurl.display=http://127.0.0.1:7990/bitbucket' \
+    '-Datlassian.sdk.version=6.3.4' \
+    '-classpath' '/amps-standalone-bitbucket-LATEST/target/bitbucket/app' 'org.springframework.boot.loader.WarLauncher' \
+    '--server.port=7990' \
+    '--server.contextPath=/bitbucket' \
+    '--spring.application.admin.enabled=true' \
+    '--spring.application.admin.jmx-name=org.springframework.boot:type=Admin,name=SpringApplication'
