@@ -67,9 +67,22 @@ class Application {
               notify: false
             }
           });
+          if (localUserData.permission) {
+            await this._fetchJson("admin/permissions/users", {
+              method: "PUT",
+              query: {
+                permission: localUserData.permission,
+                name: userSlug
+              }
+            });
+          }
         }
 
         if (!localUserData && remoteUserData) {
+          await this._fetchJson("admin/permissions/users", {
+            method: "DELETE",
+            query: { name: userSlug }
+          });
           await this._fetchJson("admin/users", {
             method: "DELETE",
             query: { name: userSlug }
@@ -77,6 +90,7 @@ class Application {
         }
 
         if (localUserData && remoteUserData) {
+          // update props
           if (
             localUserData.email !== remoteUserData.email ||
             localUserData.displayName !== remoteUserData.displayName
@@ -87,6 +101,26 @@ class Application {
                 name: userSlug,
                 displayName: localUserData.displayName,
                 email: localUserData.email
+              }
+            });
+          }
+          // remove permissions
+          if (!localUserData.permission && remoteUserData.permission) {
+            await this._fetchJson("admin/permissions/users", {
+              method: "DELETE",
+              query: { name: userSlug }
+            });
+          }
+          // change permissions
+          if (
+            localUserData.permission &&
+            localUserData.permission !== remoteUserData.permission
+          ) {
+            await this._fetchJson("admin/permissions/users", {
+              method: "PUT",
+              query: {
+                permission: localUserData.permission,
+                name: userSlug
               }
             });
           }

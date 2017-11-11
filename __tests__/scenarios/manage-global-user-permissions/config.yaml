@@ -1,0 +1,58 @@
+---
+connection:
+  user: admin
+  password: admin
+  baseUrl: http://localhost:7995/bitbucket
+
+config:
+  users:
+    admin: ignore
+    # remove permissions
+    user_r1:
+      displayName: user_r1
+      email: user_r1@example.com
+      password: password
+    user_r2:
+      displayName: user_r2
+      email: user_r2@example.com
+      password: password
+    user_r3:
+      displayName: user_r3
+      email: user_r3@example.com
+      password: password
+    # create user with permissions
+    user_c1:
+      displayName: user_c1
+      email: user_c1@example.com
+      password: password
+      permission: SYS_ADMIN
+    user_c2:
+      displayName: user_c2
+      email: user_c2@example.com
+      password: password
+      permission: ADMIN
+    user_c3:
+      displayName: user_c3
+      email: user_c3@example.com
+      password: password
+      permission: PROJECT_CREATE
+    # modify permissions
+    user_sa_to_a:
+      displayName: user_sa_to_a
+      email: user_sa_to_a@example.com
+      password: password
+      permission: ADMIN
+    user_a_to_sa:
+      displayName: user_a_to_sa
+      email: user_a_to_sa@example.com
+      password: password
+      permission: SYS_ADMIN
+
+  groups:
+    stash-users:
+      members:
+      - admin
+      permission: LICENSED_USER
+
+  projects:
+    PROJECT_1: ignore
