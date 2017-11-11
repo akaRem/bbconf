@@ -9,7 +9,7 @@ class Application {
     this.remoteData = null;
   }
 
-  async _fetch(apiEndpoint, { method, data, query } = {}) {
+  async _fetch(apiEndpoint, { method, data, query }) {
     const baseUrl = this.connectionOptions.baseUrl;
     const password = this.connectionOptions.password;
     const user = this.connectionOptions.user;
@@ -49,11 +49,11 @@ class Application {
 
   async applyUsersList() {
     for (const userSlug of new Set([
-      ...Object.keys(this.localData.users || {}),
-      ...Object.keys(this.remoteData.users || {})
+      ...Object.keys(this.localData.users),
+      ...Object.keys(this.remoteData.users)
     ])) {
-      const localUserData = (this.localData.users || {})[userSlug];
-      const remoteUserData = (this.remoteData.users || {})[userSlug];
+      const localUserData = this.localData.users[userSlug];
+      const remoteUserData = this.remoteData.users[userSlug];
       if (localUserData !== "ignore") {
         if (localUserData && !remoteUserData) {
           await this._fetchJson("admin/users", {
@@ -97,11 +97,11 @@ class Application {
 
   async applyGroupsList() {
     for (const groupName of new Set([
-      ...Object.keys(this.localData.groups || {}),
-      ...Object.keys(this.remoteData.groups || {})
+      ...Object.keys(this.localData.groups),
+      ...Object.keys(this.remoteData.groups)
     ])) {
-      const localGroupData = (this.localData.groups || {})[groupName];
-      // const remoteGroupData = (this.remoteData.groups || {})[groupName];
+      const localGroupData = this.localData.groups[groupName];
+      // const remoteGroupData = (this.remoteData.groups)[groupName];
 
       if (localGroupData !== "ignore") {
         // create/remove
@@ -111,11 +111,11 @@ class Application {
 
   async applyUsersToGroups() {
     for (const groupName of new Set([
-      ...Object.keys(this.localData.groups || {}),
-      ...Object.keys(this.remoteData.groups || {})
+      ...Object.keys(this.localData.groups),
+      ...Object.keys(this.remoteData.groups)
     ])) {
-      const localGroupData = (this.localData.groups || {})[groupName];
-      const remoteGroupData = (this.remoteData.groups || {})[groupName];
+      const localGroupData = this.localData.groups[groupName];
+      const remoteGroupData = this.remoteData.groups[groupName];
 
       if (localGroupData !== "ignore" && localGroupData.members !== "ignore") {
         for (const userSlug of new Set([
