@@ -77,7 +77,19 @@ class Application {
         }
 
         if (localUserData && remoteUserData) {
-          // check & patch
+          if (
+            localUserData.email !== remoteUserData.email ||
+            localUserData.displayName !== remoteUserData.displayName
+          ) {
+            await this._fetchJson("admin/users", {
+              method: "PUT",
+              data: {
+                name: localUserData.name,
+                displayName: localUserData.displayName,
+                email: localUserData.email
+              }
+            });
+          }
         }
       }
     }
