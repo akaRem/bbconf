@@ -9,6 +9,11 @@
     "test": "jest",
     "lint": "eslint ./src ./__tests__"
   },
+  "dependencies": {
+    "isomorphic-fetch": "^2.2.1",
+    "js-yaml": "^3.10.0",
+    "url-join": "^2.0.2"
+  },
   "devDependencies": {
     "babel-eslint": "^8.0.2",
     "eslint": "^4.11.0",
@@ -39,10 +44,5 @@
     "rules": {
       "prettier/prettier": "error"
     }
-  },
-  "dependencies": {
-    "isomorphic-fetch": "^2.2.1",
-    "js-yaml": "^3.10.0",
-    "url-join": "^2.0.2"
   }
 }
