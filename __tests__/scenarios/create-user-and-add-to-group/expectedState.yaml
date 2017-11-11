@@ -15,9 +15,7 @@ users:
   admin:
     displayName: Administrator
     email: admin@example.com
-    name: admin
     permission: SYS_ADMIN
   user:
     displayName: User
     email: user@example.com
-    name: user

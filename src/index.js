@@ -59,7 +59,7 @@ class Application {
           await this._fetchJson("admin/users", {
             method: "POST",
             query: {
-              name: localUserData.name,
+              name: userSlug,
               displayName: localUserData.displayName,
               emailAddress: localUserData.email,
               password: await this._decrypt(localUserData.password),
@@ -84,7 +84,7 @@ class Application {
             await this._fetchJson("admin/users", {
               method: "PUT",
               data: {
-                name: localUserData.name,
+                name: userSlug,
                 displayName: localUserData.displayName,
                 email: localUserData.email
               }
@@ -158,25 +158,17 @@ class Application {
     // Get users and their details
     (await this._fetchJson("admin/users", {
       query: { limit: 1000 }
-    })).values.forEach(
-      ({
-        name,
-        emailAddress,
+    })).values.forEach(({ name, emailAddress, displayName, slug }) => {
+      if (slug !== name) {
+        // FIXME console.warn
+        // eslint-disable-next-line no-console
+        console.warn(`UserSlug should match UserName, "${slug}" !== "${name}"`);
+      }
+      this.remoteData.users[slug] = {
         displayName,
-        // active,
-        slug
-        // type,
-        // directoryName,
-        // deletable,
-        // mutableDetails,
-        // mutableGroups
-      }) =>
-        (this.remoteData.users[slug] = {
-          name,
-          displayName,
-          email: emailAddress
-        })
-    );
+        email: emailAddress
+      };
+    });
 
     // Now it's possible to find out user global permission (role)
     (await this._fetchJson("admin/permissions/users", {

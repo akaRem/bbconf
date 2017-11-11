@@ -14,17 +14,13 @@ users:
   admin:
     displayName: Administrator
     email: admin@example.com
-    name: admin
     permission: SYS_ADMIN
   user1:
     displayName: User1_chg
     email: user1@example.com
-    name: user1
   user2:
     displayName: User2
     email: user2_chg@example.com
-    name: user2
   user3:
     displayName: User3_chg
     email: user3_chg@example.com
-    name: user3
