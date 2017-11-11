@@ -6,10 +6,16 @@
   "author": "iremizov@gmail.com",
   "license": "MIT",
   "scripts": {
-    "test": "jest"
+    "test": "jest",
+    "lint": "eslint ./src ./__tests__"
   },
   "devDependencies": {
-    "jest": "^21.2.1"
+    "babel-eslint": "^8.0.2",
+    "eslint": "^4.11.0",
+    "eslint-plugin-jest": "^21.3.2",
+    "eslint-plugin-prettier": "^2.3.1",
+    "jest": "^21.2.1",
+    "prettier": "^1.8.2"
   },
   "jest": {
     "verbose": true,
@@ -20,6 +26,19 @@
     },
     "moduleFileExtensions": ["js"],
     "moduleDirectories": ["node_modules", "src"]
+  },
+  "eslintConfig": {
+    "parser": "babel-eslint",
+    "env": {
+      "node": true,
+      "es6": true,
+      "jest/globals": true
+    },
+    "extends": ["eslint:recommended", "plugin:jest/recommended"],
+    "plugins": ["jest", "prettier"],
+    "rules": {
+      "prettier/prettier": "error"
+    }
   },
   "dependencies": {
     "isomorphic-fetch": "^2.2.1",

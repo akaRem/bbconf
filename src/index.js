@@ -56,7 +56,7 @@ class Application {
       const remoteUserData = (this.remoteData.users || {})[userSlug];
       if (localUserData !== "ignore") {
         if (localUserData && !remoteUserData) {
-          const resp = await this._fetchJson("admin/users", {
+          await this._fetchJson("admin/users", {
             method: "POST",
             query: {
               name: localUserData.name,
@@ -70,7 +70,7 @@ class Application {
         }
 
         if (!localUserData && remoteUserData) {
-          const resp = await this._fetchJson("admin/users", {
+          await this._fetchJson("admin/users", {
             method: "DELETE",
             query: { name: userSlug }
           });
@@ -89,7 +89,7 @@ class Application {
       ...Object.keys(this.remoteData.groups || {})
     ])) {
       const localGroupData = (this.localData.groups || {})[groupName];
-      const remoteGroupData = (this.remoteData.groups || {})[groupName];
+      // const remoteGroupData = (this.remoteData.groups || {})[groupName];
 
       if (localGroupData !== "ignore") {
         // create/remove
@@ -116,7 +116,7 @@ class Application {
             remoteGroupData.members.indexOf(userSlug) === -1
           ) {
             // FIXME Check that r.code is 200 ?
-            const resp = await this._fetch("admin/groups/add-user", {
+            await this._fetch("admin/groups/add-user", {
               method: "POST",
               data: {
                 context: groupName,
@@ -151,13 +151,13 @@ class Application {
         name,
         emailAddress,
         displayName,
-        active,
-        slug,
-        type,
-        directoryName,
-        deletable,
-        mutableDetails,
-        mutableGroups
+        // active,
+        slug
+        // type,
+        // directoryName,
+        // deletable,
+        // mutableDetails,
+        // mutableGroups
       }) =>
         (this.remoteData.users[slug] = {
           name,
@@ -182,7 +182,7 @@ class Application {
     (await this._fetchJson("admin/groups", {
       query: { limit: 1000 }
     })).values.forEach(
-      ({ name, deletable }) => (this.remoteData.groups[name] = {})
+      ({ name /* deletable */ }) => (this.remoteData.groups[name] = {})
     );
 
     // Group permissions
@@ -221,15 +221,15 @@ class Application {
         })
     );
 
-    await Object.keys(this.remoteData.projects).map(async projectKey => {
-      const pgPermissionsList = await this._fetchJson(
-        `projects/${projectKey}/permissions/groups`,
-        {
-          query: { limit: 1000 }
-        }
-      );
-      // TODO
-    });
+    // await Object.keys(this.remoteData.projects).map(async projectKey => {
+    //   const pgPermissionsList = await this._fetchJson(
+    //     `projects/${projectKey}/permissions/groups`,
+    //     {
+    //       query: { limit: 1000 }
+    //     }
+    //   );
+    //   // TODO
+    // });
   }
 
   async fetchState() {
