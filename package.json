@@ -13,17 +13,13 @@
   },
   "jest": {
     "verbose": true,
+    "collectCoverage": true,
     "testRegex": "(/__tests__/.*|(\\.|/)(test|spec))\\.js$",
     "globals": {
       "NODE_ENV": "test"
     },
-    "moduleFileExtensions": [
-      "js"
-    ],
-    "moduleDirectories": [
-      "node_modules",
-      "src"
-    ]
+    "moduleFileExtensions": ["js"],
+    "moduleDirectories": ["node_modules", "src"]
   },
   "dependencies": {
     "isomorphic-fetch": "^2.2.1",
