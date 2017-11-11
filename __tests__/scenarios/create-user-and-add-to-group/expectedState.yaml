@@ -1,0 +1,23 @@
+---
+groups:
+  stash-users:
+    members:
+    - admin
+    - user
+    permission: LICENSED_USER
+projects:
+  PROJECT_1:
+    description: 'Default configuration project #1'
+    name: Project 1
+    public: false
+    type: NORMAL
+users:
+  admin:
+    displayName: Administrator
+    email: admin@example.com
+    name: admin
+    permission: SYS_ADMIN
+  user:
+    displayName: User
+    email: user@example.com
+    name: user

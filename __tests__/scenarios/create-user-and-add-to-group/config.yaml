@@ -1,0 +1,25 @@
+---
+connection:
+  user: admin
+  password: admin
+  baseUrl: http://localhost:7995/bitbucket
+
+config:
+  users:
+    admin: ignore
+    # this user does not exist, so it will be created and added to group
+    user:
+      displayName: User
+      email: user@example.com
+      name: user
+      password: user
+
+  groups:
+    stash-users:
+      members:
+      - admin
+      - user
+      permission: LICENSED_USER
+
+  projects:
+    PROJECT_1: ignore
