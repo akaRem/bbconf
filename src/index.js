@@ -135,10 +135,65 @@ class Application {
       ...Object.keys(this.remoteData.groups)
     ])) {
       const localGroupData = this.localData.groups[groupName];
-      // const remoteGroupData = (this.remoteData.groups)[groupName];
+      const remoteGroupData = this.remoteData.groups[groupName];
 
       if (localGroupData !== "ignore") {
-        // create/remove
+        if (localGroupData && !remoteGroupData) {
+          await this._fetchJson("admin/groups", {
+            method: "POST",
+            query: {
+              name: groupName
+            }
+          });
+          // add permissions
+          if (localGroupData.permission) {
+            await this._fetchJson("admin/permissions/groups", {
+              method: "PUT",
+              query: {
+                name: groupName,
+                permission: localGroupData.permission
+              }
+            });
+          }
+        }
+
+        if (!localGroupData && remoteGroupData) {
+          await this._fetchJson("admin/permissions/groups", {
+            method: "DELETE",
+            query: {
+              name: groupName
+            }
+          });
+          await this._fetchJson("admin/groups", {
+            method: "DELETE",
+            query: {
+              name: groupName
+            }
+          });
+        }
+
+        if (localGroupData && remoteGroupData) {
+          if (
+            localGroupData.permission &&
+            localGroupData.permission !== remoteGroupData.permission
+          ) {
+            await this._fetchJson("admin/permissions/groups", {
+              method: "PUT",
+              query: {
+                name: groupName,
+                permission: localGroupData.permission
+              }
+            });
+          }
+          if (!localGroupData.permission && remoteGroupData.permission) {
+            await this._fetchJson("admin/permissions/groups", {
+              method: "DELETE",
+              query: {
+                name: groupName
+              }
+            });
+          }
+        }
       }
     }
   }
@@ -148,18 +203,18 @@ class Application {
       ...Object.keys(this.localData.groups),
       ...Object.keys(this.remoteData.groups)
     ])) {
-      const localGroupData = this.localData.groups[groupName];
-      const remoteGroupData = this.remoteData.groups[groupName];
+      const localGroupData = this.localData.groups[groupName] || {};
+      const remoteGroupData = this.remoteData.groups[groupName] || {};
 
       if (localGroupData !== "ignore" && localGroupData.members !== "ignore") {
         for (const userSlug of new Set([
-          ...localGroupData.members,
-          ...remoteGroupData.members
+          ...(localGroupData.members || []),
+          ...(remoteGroupData.members || [])
         ])) {
           // Add user to group
           if (
-            localGroupData.members.indexOf(userSlug) !== -1 &&
-            remoteGroupData.members.indexOf(userSlug) === -1
+            (localGroupData.members || []).indexOf(userSlug) !== -1 &&
+            (remoteGroupData.members || []).indexOf(userSlug) === -1
           ) {
             // FIXME Check that r.code is 200 ?
             await this._fetch("admin/groups/add-user", {
@@ -171,7 +226,19 @@ class Application {
             });
           }
           // remove user from group
-          // TODO
+          if (
+            (localGroupData.members || []).indexOf(userSlug) === -1 &&
+            (remoteGroupData.members || []).indexOf(userSlug) !== -1
+          ) {
+            // FIXME Check that r.code is 200 ?
+            await this._fetch("admin/groups/remove-user", {
+              method: "POST",
+              data: {
+                context: groupName,
+                itemName: userSlug
+              }
+            });
+          }
         }
       }
     }
@@ -219,17 +286,16 @@ class Application {
     // Getting all groups
     (await this._fetchJson("admin/groups", {
       query: { limit: 1000 }
-    })).values.forEach(
-      ({ name /* deletable */ }) => (this.remoteData.groups[name] = {})
-    );
+    })).values.forEach(({ name /* deletable */ }) => {
+      this.remoteData.groups[name] = {};
+    });
 
     // Group permissions
     (await this._fetchJson("admin/permissions/groups", {
       query: { limit: 1000 }
-    })).values.forEach(
-      ({ group: { name }, permission }) =>
-        (this.remoteData.groups[name].permission = permission)
-    );
+    })).values.forEach(({ group: { name }, permission }) => {
+      this.remoteData.groups[name].permission = permission;
+    });
 
     // Group members
     // TODO Rework for readability

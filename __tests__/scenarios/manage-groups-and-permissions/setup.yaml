@@ -1,0 +1,16 @@
+connection:
+  user: admin
+  password: admin
+  baseUrl: http://localhost:7995/bitbucket
+
+config:
+
+  users:
+    admin: ignore
+
+  groups:
+    stash-users: ignore
+    existing-group:
+
+  projects:
+    PROJECT_1: ignore
