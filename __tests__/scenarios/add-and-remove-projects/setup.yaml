@@ -1,0 +1,25 @@
+connection:
+  user: admin
+  password: admin
+  baseUrl: http://localhost:7995/bitbucket
+
+config:
+
+  users:
+    admin: ignore
+
+  groups:
+    stash-users: ignore
+
+  projects:
+    PROJECT_1: ignore
+
+    PROJECT_TO_CHANGE:
+      description: Description for Sample Project
+      name: PROJECT_TO_CHANGE
+      public: false
+
+    PROJECT_TO_REMOVE:
+      description: Description for Sample Project
+      name: PROJECT_TO_REMOVE
+      public: false

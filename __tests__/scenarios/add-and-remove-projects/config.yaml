@@ -1,0 +1,27 @@
+---
+connection:
+  user: admin
+  password: admin
+  baseUrl: http://localhost:7995/bitbucket
+
+config:
+  users:
+    admin: ignore
+
+  groups:
+    stash-users:
+      members:
+      - admin
+      - user
+      permission: LICENSED_USER
+
+  projects:
+    PROJECT_1: ignore
+    PROJECT_TO_ADD:
+      description: Description for Sample Project
+      name: PROJECT_TO_ADD
+      public: false
+    PROJECT_TO_CHANGE:
+      description: Description for Sample Project - changed
+      name: PROJECT_TO_CHANGE - changed
+      public: true  # doesn't work for now :(

@@ -252,7 +252,50 @@ class Application {
       }
     }
   }
+  async applyProjectsList() {
+    for (const projectKey of new Set([
+      ...Object.keys(this.localData.projects),
+      ...Object.keys(this.remoteData.projects)
+    ])) {
+      const localProject = this.localData.projects[projectKey];
+      const remoteProject = this.remoteData.projects[projectKey];
+      if (localProject !== "ignore") {
+        if (localProject && !remoteProject) {
+          await this._fetchJson("projects", {
+            method: "POST",
+            data: {
+              key: projectKey,
+              name: localProject.name,
+              description: localProject.description
+            }
+          });
+        }
 
+        if (!localProject && remoteProject) {
+          await this._fetchJson(`projects/${projectKey}`, {
+            method: "DELETE"
+          });
+        }
+
+        if (localProject && remoteProject) {
+          if (
+            localProject.name !== remoteProject.name ||
+            localProject.description !== remoteProject.description ||
+            localProject.public !== remoteProject.public
+          ) {
+            await this._fetchJson(`projects/${projectKey}`, {
+              method: "PUT",
+              data: {
+                key: projectKey,
+                name: localProject.name,
+                description: localProject.description
+              }
+            });
+          }
+        }
+      }
+    }
+  }
   async apply() {
     if (!this.remoteData) {
       await this.fetchState();
@@ -260,6 +303,7 @@ class Application {
     await this.applyUsersList();
     await this.applyGroupsList();
     await this.applyUsersToGroups();
+    await this.applyProjectsList();
   }
 
   async fetchUsers() {
