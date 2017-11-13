@@ -61,6 +61,11 @@ class Client {
   async get(apiEndpoint, { data, query }) {
     return await this.req(apiEndpoint, { method: "GET", data, query });
   }
+  async getAll(apiEndpoint, { query } = {}) {
+    return await this.get(apiEndpoint, {
+      query: { limit: 1000, ...(query || {}) }
+    });
+  }
   async post(apiEndpoint, { data, query }) {
     return await this.req(apiEndpoint, { method: "POST", data, query });
   }

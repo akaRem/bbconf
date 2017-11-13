@@ -5,6 +5,15 @@ const diffLists = (a, b) => {
   return [onlyInA, both, onlyInB];
 };
 
+const diffIgnoreableObjects = (a, b) => {
+  const toIgnore = Object.keys(a).filter(k => a[k] === "ignore");
+  return diffLists(
+    Object.keys(a).filter(k => !toIgnore.includes(k)),
+    Object.keys(b).filter(k => !toIgnore.includes(k))
+  );
+};
+
 module.exports = {
-  diffLists
+  diffLists,
+  diffIgnoreableObjects
 };

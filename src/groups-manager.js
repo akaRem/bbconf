@@ -1,4 +1,4 @@
-const { diffLists } = require("./util");
+const { diffLists, diffIgnoreableObjects } = require("./util");
 
 class GroupsManager {
   constructor(app) {
@@ -18,81 +18,103 @@ class GroupsManager {
     return this.app.client;
   }
 
-  async fetch() {
-    this.remoteData.groups = this.remoteData.groups || {};
-
-    // Getting all groups
-    (await this.client.get("admin/groups", {
-      query: { limit: 1000 }
-    })).values.forEach(({ name /* deletable */ }) => {
+  async fetchGroupsNames() {
+    const data = await this.client.getAll("admin/groups");
+    data.values.forEach(({ name /* deletable */ }) => {
       this.remoteData.groups[name] = {};
     });
+  }
 
-    // Group permissions
-    (await this.client.get("admin/permissions/groups", {
-      query: { limit: 1000 }
-    })).values.forEach(({ group: { name }, permission }) => {
+  async fetchGroupsPermissions() {
+    const data = await this.client.getAll("admin/permissions/groups");
+    data.values.forEach(({ group: { name }, permission }) => {
+      // workaround
+      // group may be deleted but permissions are continue to exist
+      // and it looks like ok to delete deleted group
+      this.remoteData.groups[name] = this.remoteData.groups[name] || {};
       this.remoteData.groups[name].permission = permission;
     });
+  }
 
-    // Group members
-    // TODO Rework for readability
-    await Promise.all(
-      Object.keys(this.remoteData.groups).map(async name => {
-        const members = (await this.client.get("admin/groups/more-members", {
-          query: { limit: 1000, context: name }
-        })).values.map(({ slug }) => slug);
-        this.remoteData.groups[name].members = members;
-      })
+  async fetchGroupMembers(groupName) {
+    const data = await this.client.getAll("admin/groups/more-members", {
+      query: { context: groupName }
+    });
+    this.remoteData.groups[groupName].members = data.values.map(
+      ({ slug }) => slug
     );
   }
-  async apply() {
-    const toIgnore = Object.keys(this.localData.groups).filter(
-      slug => this.localData.groups[slug] === "ignore"
+
+  async fetch() {
+    this.remoteData.groups = this.remoteData.groups || {};
+    await this.fetchGroupsNames();
+    await this.fetchGroupsPermissions();
+
+    const groupsNames = Object.keys(this.remoteData.groups);
+    await Promise.all(
+      groupsNames.map(async name => this.fetchGroupMembers(name))
     );
-    const [toAdd, toChange, toRemove] = diffLists(
-      Object.keys(this.localData.groups).filter(
-        slug => !toIgnore.includes(slug)
-      ),
-      Object.keys(this.remoteData.groups).filter(
-        slug => !toIgnore.includes(slug)
-      )
+  }
+
+  async createGroup(groupName) {
+    await this.client.post("admin/groups", {
+      query: { name: groupName }
+    });
+  }
+  async deleteGroup(groupName) {
+    await this.client.delete("admin/groups", {
+      query: { name: groupName }
+    });
+  }
+
+  async setGroupPermission(groupName, permission) {
+    await this.client.put("admin/permissions/groups", {
+      query: { name: groupName, permission }
+    });
+  }
+
+  async deleteGroupPermission(groupName) {
+    await this.client.delete("admin/permissions/groups", {
+      query: { name: groupName }
+    });
+  }
+  async addGroupMembers(groupName, members) {
+    for (const userSlug of members || []) {
+      await this.client.post("admin/groups/add-user", {
+        data: { context: groupName, itemName: userSlug }
+      });
+    }
+  }
+  async removeGroupMembers(groupName, members) {
+    for (const userSlug of members || []) {
+      await this.client.post("admin/groups/remove-user", {
+        data: { context: groupName, itemName: userSlug }
+      });
+    }
+  }
+
+  async apply() {
+    const [toAdd, toChange, toRemove] = diffIgnoreableObjects(
+      this.localData.groups,
+      this.remoteData.groups
     );
 
     for (const groupName of toAdd) {
       const localGroup = this.localData.groups[groupName];
-      await this.client.post("admin/groups", {
-        query: { name: groupName }
-      });
-      // add permissions
+      await this.createGroup(groupName);
       if (localGroup.permission) {
-        await this.client.put("admin/permissions/groups", {
-          query: { name: groupName, permission: localGroup.permission }
-        });
+        await this.setGroupPermission(groupName, localGroup.permission);
       }
-
       if (localGroup.members !== "ignore") {
-        for (const userSlug of localGroup.members || []) {
-          await this.client.post("admin/groups/add-user", {
-            data: { context: groupName, itemName: userSlug }
-          });
-        }
+        this.addGroupMembers(groupName, localGroup.members);
       }
     }
 
     for (const groupName of toRemove) {
       const remoteGroup = this.remoteData.groups[groupName];
-      for (const userSlug of remoteGroup.members || []) {
-        await this.client.post("admin/groups/remove-user", {
-          data: { context: groupName, itemName: userSlug }
-        });
-      }
-      await this.client.delete("admin/permissions/groups", {
-        query: { name: groupName }
-      });
-      await this.client.delete("admin/groups", {
-        query: { name: groupName }
-      });
+      await this.removeGroupMembers(groupName, remoteGroup.members);
+      await this.deleteGroupPermission(groupName);
+      await this.deleteGroup(groupName);
     }
 
     for (const groupName of toChange) {
@@ -101,21 +123,14 @@ class GroupsManager {
 
       if (
         localGroup.permission &&
+        localGroup.permission !== "ignore" &&
         localGroup.permission !== remoteGroup.permission
       ) {
-        await this.client.put("admin/permissions/groups", {
-          query: { name: groupName, permission: localGroup.permission }
-        });
+        await this.setGroupPermission(groupName, localGroup.permission);
       }
+
       if (!localGroup.permission && remoteGroup.permission) {
-        await this.client.delete("admin/permissions/groups", {
-          query: { name: groupName }
-        });
-      }
-      if (localGroup.permission) {
-        await this.client.put("admin/permissions/groups", {
-          query: { name: groupName, permission: localGroup.permission }
-        });
+        await this.deleteGroupPermission(groupName);
       }
 
       if (localGroup.members !== "ignore") {
@@ -124,17 +139,8 @@ class GroupsManager {
           remoteGroup.members || []
         );
 
-        for (const userSlug of usersToAdd) {
-          await this.client.post("admin/groups/add-user", {
-            data: { context: groupName, itemName: userSlug }
-          });
-        }
-
-        for (const userSlug of usersToRemove) {
-          await this.client.post("admin/groups/remove-user", {
-            data: { context: groupName, itemName: userSlug }
-          });
-        }
+        await this.addGroupMembers(groupName, usersToAdd);
+        await this.removeGroupMembers(groupName, usersToRemove);
       }
     }
   }
