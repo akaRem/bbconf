@@ -1,45 +1,11 @@
-const fetch = require("isomorphic-fetch");
-const urljoin = require("url-join");
-const querystring = require("querystring");
+const { Client } = require("./client");
 
 class Application {
   constructor(options) {
     this.connectionOptions = options.connection;
     this.localData = options.config;
     this.remoteData = null;
-  }
-
-  async _fetch(apiEndpoint, { method, data, query }) {
-    const baseUrl = this.connectionOptions.baseUrl;
-    const password = this.connectionOptions.password;
-    const user = this.connectionOptions.user;
-    const apiUrl = "rest/api/1.0";
-
-    const fullUrl = urljoin(
-      baseUrl,
-      apiUrl,
-      apiEndpoint,
-      query ? "?" + querystring.stringify(query) : ""
-    );
-
-    return await fetch(fullUrl, {
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-        Authorization: `Basic ${new Buffer(`${user}:${password}`).toString(
-          "base64"
-        )}`
-      },
-      method: method || "GET",
-      body: data ? JSON.stringify(data) : ""
-    });
-  }
-
-  async _fetchJson(...args) {
-    // FIXME http codes handling
-    return await this._fetch(...args).then(
-      response => (response.status !== 204 ? response.json() : {})
-    );
+    this.client = new Client(this);
   }
 
   async _decrypt(password) {
@@ -57,8 +23,7 @@ class Application {
       if (localUser !== "ignore") {
         if (localUser && !remoteUser) {
           // create user
-          await this._fetchJson("admin/users", {
-            method: "POST",
+          await this.client.post("admin/users", {
             query: {
               name: userSlug,
               displayName: localUser.displayName,
@@ -70,8 +35,7 @@ class Application {
           });
           if (localUser.permission) {
             // create permission
-            await this._fetchJson("admin/permissions/users", {
-              method: "PUT",
+            await this.client.put("admin/permissions/users", {
               query: {
                 permission: localUser.permission,
                 name: userSlug
@@ -84,13 +48,11 @@ class Application {
           // remove user
           if (remoteUser.permission) {
             // remove permissions
-            await this._fetchJson("admin/permissions/users", {
-              method: "DELETE",
+            await this.client.delete("admin/permissions/users", {
               query: { name: userSlug }
             });
           }
-          await this._fetchJson("admin/users", {
-            method: "DELETE",
+          await this.client.delete("admin/users", {
             query: { name: userSlug }
           });
         }
@@ -102,8 +64,7 @@ class Application {
             localUser.displayName !== remoteUser.displayName
           ) {
             // sync properties
-            await this._fetchJson("admin/users", {
-              method: "PUT",
+            await this.client.put("admin/users", {
               data: {
                 name: userSlug,
                 displayName: localUser.displayName,
@@ -114,8 +75,7 @@ class Application {
 
           if (!localUser.permission && remoteUser.permission) {
             // remove permission
-            await this._fetchJson("admin/permissions/users", {
-              method: "DELETE",
+            await this.client.delete("admin/permissions/users", {
               query: { name: userSlug }
             });
           }
@@ -125,8 +85,7 @@ class Application {
             localUser.permission !== remoteUser.permission
           ) {
             // change permission
-            await this._fetchJson("admin/permissions/users", {
-              method: "PUT",
+            await this.client.put("admin/permissions/users", {
               query: {
                 permission: localUser.permission,
                 name: userSlug
@@ -148,16 +107,14 @@ class Application {
 
       if (localGroup !== "ignore") {
         if (localGroup && !remoteGroup) {
-          await this._fetchJson("admin/groups", {
-            method: "POST",
+          await this.client.post("admin/groups", {
             query: {
               name: groupName
             }
           });
           // add permissions
           if (localGroup.permission) {
-            await this._fetchJson("admin/permissions/groups", {
-              method: "PUT",
+            await this.client.put("admin/permissions/groups", {
               query: {
                 name: groupName,
                 permission: localGroup.permission
@@ -167,14 +124,12 @@ class Application {
         }
 
         if (!localGroup && remoteGroup) {
-          await this._fetchJson("admin/permissions/groups", {
-            method: "DELETE",
+          await this.client.delete("admin/permissions/groups", {
             query: {
               name: groupName
             }
           });
-          await this._fetchJson("admin/groups", {
-            method: "DELETE",
+          await this.client.delete("admin/groups", {
             query: {
               name: groupName
             }
@@ -186,7 +141,7 @@ class Application {
             localGroup.permission &&
             localGroup.permission !== remoteGroup.permission
           ) {
-            await this._fetchJson("admin/permissions/groups", {
+            await this.client.put("admin/permissions/groups", {
               method: "PUT",
               query: {
                 name: groupName,
@@ -195,8 +150,7 @@ class Application {
             });
           }
           if (!localGroup.permission && remoteGroup.permission) {
-            await this._fetchJson("admin/permissions/groups", {
-              method: "DELETE",
+            await this.client.delete("admin/permissions/groups", {
               query: {
                 name: groupName
               }
@@ -225,8 +179,7 @@ class Application {
           ) {
             // Add user to group
             // FIXME Check that r.code is 200 ?
-            await this._fetch("admin/groups/add-user", {
-              method: "POST",
+            await this.client.post("admin/groups/add-user", {
               data: {
                 context: groupName,
                 itemName: userSlug
@@ -240,8 +193,7 @@ class Application {
           ) {
             // remove user from group
             // FIXME Check that r.code is 200 ?
-            await this._fetch("admin/groups/remove-user", {
-              method: "POST",
+            await this.client.post("admin/groups/remove-user", {
               data: {
                 context: groupName,
                 itemName: userSlug
@@ -261,8 +213,7 @@ class Application {
       const remoteProject = this.remoteData.projects[projectKey];
       if (localProject !== "ignore") {
         if (localProject && !remoteProject) {
-          await this._fetchJson("projects", {
-            method: "POST",
+          await this.client.post("projects", {
             data: {
               key: projectKey,
               name: localProject.name,
@@ -272,9 +223,7 @@ class Application {
         }
 
         if (!localProject && remoteProject) {
-          await this._fetchJson(`projects/${projectKey}`, {
-            method: "DELETE"
-          });
+          await this.client.delete(`projects/${projectKey}`);
         }
 
         if (localProject && remoteProject) {
@@ -283,8 +232,7 @@ class Application {
             localProject.description !== remoteProject.description ||
             localProject.public !== remoteProject.public
           ) {
-            await this._fetchJson(`projects/${projectKey}`, {
-              method: "PUT",
+            await this.client.put(`projects/${projectKey}`, {
               data: {
                 key: projectKey,
                 name: localProject.name,
@@ -310,7 +258,7 @@ class Application {
     this.remoteData.users = this.remoteData.users || {};
 
     // Get users and their details
-    (await this._fetchJson("admin/users", {
+    (await this.client.get("admin/users", {
       query: { limit: 1000 }
     })).values.forEach(({ name, emailAddress, displayName, slug }) => {
       if (slug !== name) {
@@ -325,7 +273,7 @@ class Application {
     });
 
     // Now it's possible to find out user global permission (role)
-    (await this._fetchJson("admin/permissions/users", {
+    (await this.client.get("admin/permissions/users", {
       query: { limit: 1000 }
     })).values.forEach(
       ({ user: { slug }, permission }) =>
@@ -337,14 +285,14 @@ class Application {
     this.remoteData.groups = this.remoteData.groups || {};
 
     // Getting all groups
-    (await this._fetchJson("admin/groups", {
+    (await this.client.get("admin/groups", {
       query: { limit: 1000 }
     })).values.forEach(({ name /* deletable */ }) => {
       this.remoteData.groups[name] = {};
     });
 
     // Group permissions
-    (await this._fetchJson("admin/permissions/groups", {
+    (await this.client.get("admin/permissions/groups", {
       query: { limit: 1000 }
     })).values.forEach(({ group: { name }, permission }) => {
       this.remoteData.groups[name].permission = permission;
@@ -354,7 +302,7 @@ class Application {
     // TODO Rework for readability
     await Promise.all(
       Object.keys(this.remoteData.groups).map(async name => {
-        const members = (await this._fetchJson("admin/groups/more-members", {
+        const members = (await this.client.get("admin/groups/more-members", {
           query: { limit: 1000, context: name }
         })).values.map(({ slug }) => slug);
         this.remoteData.groups[name].members = members;
@@ -365,7 +313,7 @@ class Application {
   async fetchProjects() {
     this.remoteData.projects = {};
 
-    (await this._fetchJson("projects", {
+    (await this.client.get("projects", {
       query: { limit: 1000 }
     })).values.forEach(
       // public is a reserved word in strict mode
