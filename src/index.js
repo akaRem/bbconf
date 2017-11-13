@@ -1,5 +1,12 @@
 const { Client } = require("./client");
 
+const diffLists = (a, b) => {
+  const onlyInA = a.filter(i => !b.includes(i));
+  const onlyInB = b.filter(i => !a.includes(i));
+  const both = a.filter(i => b.includes(i));
+  return [onlyInA, both, onlyInB];
+};
+
 class Application {
   constructor(options) {
     this.connectionOptions = options.connection;
@@ -14,233 +21,223 @@ class Application {
   }
 
   async applyUsersList() {
-    for (const userSlug of new Set([
-      ...Object.keys(this.localData.users),
-      ...Object.keys(this.remoteData.users)
-    ])) {
+    const toIgnore = Object.keys(this.localData.users).filter(
+      slug => this.localData.users[slug] === "ignore"
+    );
+    const [toAdd, toChange, toRemove] = diffLists(
+      Object.keys(this.localData.users).filter(
+        slug => !toIgnore.includes(slug)
+      ),
+      Object.keys(this.remoteData.users).filter(
+        slug => !toIgnore.includes(slug)
+      )
+    );
+
+    for (const userSlug of toAdd) {
+      const localUser = this.localData.users[userSlug];
+      await this.client.post("admin/users", {
+        query: {
+          name: userSlug,
+          displayName: localUser.displayName,
+          emailAddress: localUser.email,
+          password: await this._decrypt(localUser.password),
+          addToDefaultGroup: false,
+          notify: false
+        }
+      });
+      if (localUser.permission) {
+        // create permission
+        await this.client.put("admin/permissions/users", {
+          query: { permission: localUser.permission, name: userSlug }
+        });
+      }
+    }
+
+    for (const userSlug of toRemove) {
+      const remoteUser = this.remoteData.users[userSlug];
+      if (remoteUser.permission) {
+        // remove permissions
+        await this.client.delete("admin/permissions/users", {
+          query: { name: userSlug }
+        });
+      }
+      await this.client.delete("admin/users", {
+        query: { name: userSlug }
+      });
+    }
+
+    for (const userSlug of toChange) {
       const localUser = this.localData.users[userSlug];
       const remoteUser = this.remoteData.users[userSlug];
-      if (localUser !== "ignore") {
-        if (localUser && !remoteUser) {
-          // create user
-          await this.client.post("admin/users", {
-            query: {
-              name: userSlug,
-              displayName: localUser.displayName,
-              emailAddress: localUser.email,
-              password: await this._decrypt(localUser.password),
-              addToDefaultGroup: false,
-              notify: false
-            }
-          });
-          if (localUser.permission) {
-            // create permission
-            await this.client.put("admin/permissions/users", {
-              query: {
-                permission: localUser.permission,
-                name: userSlug
-              }
-            });
+      if (
+        localUser.email !== remoteUser.email ||
+        localUser.displayName !== remoteUser.displayName
+      ) {
+        // sync properties
+        await this.client.put("admin/users", {
+          data: {
+            name: userSlug,
+            displayName: localUser.displayName,
+            email: localUser.email
           }
-        }
+        });
+      }
 
-        if (!localUser && remoteUser) {
-          // remove user
-          if (remoteUser.permission) {
-            // remove permissions
-            await this.client.delete("admin/permissions/users", {
-              query: { name: userSlug }
-            });
-          }
-          await this.client.delete("admin/users", {
-            query: { name: userSlug }
-          });
-        }
+      if (!localUser.permission && remoteUser.permission) {
+        // remove permission
+        await this.client.delete("admin/permissions/users", {
+          query: { name: userSlug }
+        });
+      }
 
-        if (localUser && remoteUser) {
-          // sync users
-          if (
-            localUser.email !== remoteUser.email ||
-            localUser.displayName !== remoteUser.displayName
-          ) {
-            // sync properties
-            await this.client.put("admin/users", {
-              data: {
-                name: userSlug,
-                displayName: localUser.displayName,
-                email: localUser.email
-              }
-            });
-          }
-
-          if (!localUser.permission && remoteUser.permission) {
-            // remove permission
-            await this.client.delete("admin/permissions/users", {
-              query: { name: userSlug }
-            });
-          }
-
-          if (
-            localUser.permission &&
-            localUser.permission !== remoteUser.permission
-          ) {
-            // change permission
-            await this.client.put("admin/permissions/users", {
-              query: {
-                permission: localUser.permission,
-                name: userSlug
-              }
-            });
-          }
-        }
+      if (
+        localUser.permission &&
+        localUser.permission !== remoteUser.permission
+      ) {
+        // change permission
+        await this.client.put("admin/permissions/users", {
+          query: { permission: localUser.permission, name: userSlug }
+        });
       }
     }
   }
 
   async applyGroupsList() {
-    for (const groupName of new Set([
-      ...Object.keys(this.localData.groups),
-      ...Object.keys(this.remoteData.groups)
-    ])) {
+    const toIgnore = Object.keys(this.localData.groups).filter(
+      slug => this.localData.groups[slug] === "ignore"
+    );
+    const [toAdd, toChange, toRemove] = diffLists(
+      Object.keys(this.localData.groups).filter(
+        slug => !toIgnore.includes(slug)
+      ),
+      Object.keys(this.remoteData.groups).filter(
+        slug => !toIgnore.includes(slug)
+      )
+    );
+
+    for (const groupName of toAdd) {
+      const localGroup = this.localData.groups[groupName];
+      await this.client.post("admin/groups", {
+        query: { name: groupName }
+      });
+      // add permissions
+      if (localGroup.permission) {
+        await this.client.put("admin/permissions/groups", {
+          query: { name: groupName, permission: localGroup.permission }
+        });
+      }
+
+      if (localGroup.members !== "ignore") {
+        for (const userSlug of localGroup.members || []) {
+          await this.client.post("admin/groups/add-user", {
+            data: { context: groupName, itemName: userSlug }
+          });
+        }
+      }
+    }
+
+    for (const groupName of toRemove) {
+      const remoteGroup = this.remoteData.groups[groupName];
+      for (const userSlug of remoteGroup.members || []) {
+        await this.client.post("admin/groups/remove-user", {
+          data: { context: groupName, itemName: userSlug }
+        });
+      }
+      await this.client.delete("admin/permissions/groups", {
+        query: { name: groupName }
+      });
+      await this.client.delete("admin/groups", {
+        query: { name: groupName }
+      });
+    }
+
+    for (const groupName of toChange) {
       const localGroup = this.localData.groups[groupName];
       const remoteGroup = this.remoteData.groups[groupName];
 
-      if (localGroup !== "ignore") {
-        if (localGroup && !remoteGroup) {
-          await this.client.post("admin/groups", {
-            query: {
-              name: groupName
-            }
+      if (
+        localGroup.permission &&
+        localGroup.permission !== remoteGroup.permission
+      ) {
+        await this.client.put("admin/permissions/groups", {
+          query: { name: groupName, permission: localGroup.permission }
+        });
+      }
+      if (!localGroup.permission && remoteGroup.permission) {
+        await this.client.delete("admin/permissions/groups", {
+          query: { name: groupName }
+        });
+      }
+      if (localGroup.permission) {
+        await this.client.put("admin/permissions/groups", {
+          query: { name: groupName, permission: localGroup.permission }
+        });
+      }
+
+      if (localGroup.members !== "ignore") {
+        const [usersToAdd, , usersToRemove] = diffLists(
+          localGroup.members || [],
+          remoteGroup.members || []
+        );
+
+        for (const userSlug of usersToAdd) {
+          await this.client.post("admin/groups/add-user", {
+            data: { context: groupName, itemName: userSlug }
           });
-          // add permissions
-          if (localGroup.permission) {
-            await this.client.put("admin/permissions/groups", {
-              query: {
-                name: groupName,
-                permission: localGroup.permission
-              }
-            });
-          }
         }
 
-        if (!localGroup && remoteGroup) {
-          await this.client.delete("admin/permissions/groups", {
-            query: {
-              name: groupName
-            }
+        for (const userSlug of usersToRemove) {
+          await this.client.post("admin/groups/remove-user", {
+            data: { context: groupName, itemName: userSlug }
           });
-          await this.client.delete("admin/groups", {
-            query: {
-              name: groupName
-            }
-          });
-        }
-
-        if (localGroup && remoteGroup) {
-          if (
-            localGroup.permission &&
-            localGroup.permission !== remoteGroup.permission
-          ) {
-            await this.client.put("admin/permissions/groups", {
-              method: "PUT",
-              query: {
-                name: groupName,
-                permission: localGroup.permission
-              }
-            });
-          }
-          if (!localGroup.permission && remoteGroup.permission) {
-            await this.client.delete("admin/permissions/groups", {
-              query: {
-                name: groupName
-              }
-            });
-          }
         }
       }
     }
   }
 
-  async applyUsersToGroups() {
-    for (const groupName of new Set([
-      ...Object.keys(this.localData.groups),
-      ...Object.keys(this.remoteData.groups)
-    ])) {
-      const localGroup = this.localData.groups[groupName] || {};
-      const remoteGroup = this.remoteData.groups[groupName] || {};
-      const localMembers = localGroup.members || [];
-      const remoteMembers = remoteGroup.members || [];
-
-      if (localGroup !== "ignore" && localGroup.members !== "ignore") {
-        for (const userSlug of new Set([...localMembers, ...remoteMembers])) {
-          if (
-            localMembers.indexOf(userSlug) !== -1 &&
-            remoteMembers.indexOf(userSlug) === -1
-          ) {
-            // Add user to group
-            // FIXME Check that r.code is 200 ?
-            await this.client.post("admin/groups/add-user", {
-              data: {
-                context: groupName,
-                itemName: userSlug
-              }
-            });
-          }
-
-          if (
-            localMembers.indexOf(userSlug) === -1 &&
-            remoteMembers.indexOf(userSlug) !== -1
-          ) {
-            // remove user from group
-            // FIXME Check that r.code is 200 ?
-            await this.client.post("admin/groups/remove-user", {
-              data: {
-                context: groupName,
-                itemName: userSlug
-              }
-            });
-          }
-        }
-      }
-    }
-  }
   async applyProjectsList() {
-    for (const projectKey of new Set([
-      ...Object.keys(this.localData.projects),
-      ...Object.keys(this.remoteData.projects)
-    ])) {
+    const toIgnore = Object.keys(this.localData.projects).filter(
+      slug => this.localData.projects[slug] === "ignore"
+    );
+    const [toAdd, toChange, toRemove] = diffLists(
+      Object.keys(this.localData.projects).filter(
+        slug => !toIgnore.includes(slug)
+      ),
+      Object.keys(this.remoteData.projects).filter(
+        slug => !toIgnore.includes(slug)
+      )
+    );
+
+    for (const projectKey of toAdd) {
+      const localProject = this.localData.projects[projectKey];
+      await this.client.post("projects", {
+        data: {
+          key: projectKey,
+          name: localProject.name,
+          description: localProject.description
+        }
+      });
+    }
+
+    for (const projectKey of toRemove) {
+      await this.client.delete(`projects/${projectKey}`);
+    }
+
+    for (const projectKey of toChange) {
       const localProject = this.localData.projects[projectKey];
       const remoteProject = this.remoteData.projects[projectKey];
-      if (localProject !== "ignore") {
-        if (localProject && !remoteProject) {
-          await this.client.post("projects", {
-            data: {
-              key: projectKey,
-              name: localProject.name,
-              description: localProject.description
-            }
-          });
-        }
-
-        if (!localProject && remoteProject) {
-          await this.client.delete(`projects/${projectKey}`);
-        }
-
-        if (localProject && remoteProject) {
-          if (
-            localProject.name !== remoteProject.name ||
-            localProject.description !== remoteProject.description ||
-            localProject.public !== remoteProject.public
-          ) {
-            await this.client.put(`projects/${projectKey}`, {
-              data: {
-                key: projectKey,
-                name: localProject.name,
-                description: localProject.description
-              }
-            });
+      if (
+        localProject.name !== remoteProject.name ||
+        localProject.description !== remoteProject.description ||
+        localProject.public !== remoteProject.public
+      ) {
+        await this.client.put(`projects/${projectKey}`, {
+          data: {
+            key: projectKey,
+            name: localProject.name,
+            description: localProject.description
           }
-        }
+        });
       }
     }
   }
@@ -250,7 +247,6 @@ class Application {
     }
     await this.applyUsersList();
     await this.applyGroupsList();
-    await this.applyUsersToGroups();
     await this.applyProjectsList();
   }
 
