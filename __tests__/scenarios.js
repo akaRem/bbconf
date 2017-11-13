@@ -30,7 +30,7 @@ describe("Scenarios bundle", async () => {
 
       // 4. Get state and compare it with expectations
       const finalApp = new Application(loadYaml(baseDir, "config.yaml"));
-      await finalApp.fetchState();
+      await finalApp.fetch();
       expect(finalApp.remoteData).toEqual(
         loadYaml(baseDir, "expectedState.yaml")
       );
