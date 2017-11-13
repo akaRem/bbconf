@@ -1,0 +1,5 @@
+---
+connection:
+  user: admin
+  password: admin
+  baseUrl: http://localhost:7995/bitbucket

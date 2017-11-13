@@ -1,0 +1,28 @@
+---
+config:
+  users:
+    admin: ignore
+    # change display name
+    user1:
+      displayName: User1_chg
+      email: user1@example.com
+      password: user1
+    # change email
+    user2:
+      displayName: User2
+      email: user2_chg@example.com
+      password: user2
+    # change everything
+    user3:
+      displayName: User3_chg
+      email: user3_chg@example.com
+      password: user3
+
+  groups:
+    stash-users:
+      members:
+      - admin
+      permission: LICENSED_USER
+
+  projects:
+    PROJECT_1: ignore

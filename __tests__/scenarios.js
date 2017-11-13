@@ -1,10 +1,7 @@
 const { Application } = require("../src");
+const { loadYaml } = require("../src/util");
 const path = require("path");
 const fs = require("fs");
-const yaml = require("js-yaml");
-
-const loadYaml = (...paths) =>
-  yaml.safeLoad(fs.readFileSync(path.join(...paths), "utf8"));
 
 describe("Scenarios bundle", async () => {
   const scenariosBaseDir = path.join(__dirname, "scenarios");
@@ -24,7 +21,7 @@ describe("Scenarios bundle", async () => {
       const setupApp = new Application(loadYaml(baseDir, "setup.yaml"));
       await setupApp.apply();
 
-      // 3. Apply config
+      // 3. Run scenario
       const app = new Application(loadYaml(baseDir, "config.yaml"));
       await app.apply();
 

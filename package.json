@@ -12,7 +12,8 @@
   "dependencies": {
     "isomorphic-fetch": "^2.2.1",
     "js-yaml": "^3.10.0",
-    "url-join": "^2.0.2"
+    "url-join": "^2.0.2",
+    "yargs": "^10.0.3"
   },
   "devDependencies": {
     "babel-eslint": "^8.0.2",
@@ -29,8 +30,13 @@
     "globals": {
       "NODE_ENV": "test"
     },
-    "moduleFileExtensions": ["js"],
-    "moduleDirectories": ["node_modules", "src"]
+    "moduleFileExtensions": [
+      "js"
+    ],
+    "moduleDirectories": [
+      "node_modules",
+      "src"
+    ]
   },
   "eslintConfig": {
     "parser": "babel-eslint",
@@ -39,8 +45,14 @@
       "es6": true,
       "jest/globals": true
     },
-    "extends": ["eslint:recommended", "plugin:jest/recommended"],
-    "plugins": ["jest", "prettier"],
+    "extends": [
+      "eslint:recommended",
+      "plugin:jest/recommended"
+    ],
+    "plugins": [
+      "jest",
+      "prettier"
+    ],
     "rules": {
       "prettier/prettier": "error"
     }
