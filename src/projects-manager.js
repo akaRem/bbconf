@@ -32,9 +32,25 @@ class ProjectsManager {
     );
   }
 
+  async fetchRepos() {
+    for (const key of Object.keys(this.remoteData.projects)) {
+      this.remoteData.projects[key].repos = {};
+      const data = await this.client.getAll(`projects/${key}/repos`);
+      data.values.forEach(({ slug, scmId, state, forkable, ..._ }) => {
+        this.remoteData.projects[key].repos[slug] = {
+          scmId,
+          state,
+          forkable,
+          public: _.public
+        };
+      });
+    }
+  }
+
   async fetch() {
     this.remoteData.projects = this.remoteData.projects || {};
     await this.fetchProjects();
+    await this.fetchRepos();
   }
 
   async createProject(data) {
@@ -51,6 +67,15 @@ class ProjectsManager {
     await this.client.delete(`projects/${key}`);
   }
 
+  async createRepo(key, slug, data) {
+    await this.client.post(`projects/${key}/repos`, {
+      data: { name: slug, ...data }
+    });
+  }
+  async deleteRepo(key, slug) {
+    await this.client.delete(`projects/${key}/repos/${slug}`);
+  }
+
   async apply() {
     const [toAdd, toChange, toRemove] = diffIgnoreableObjects(
       this.localData.projects,
@@ -60,9 +85,22 @@ class ProjectsManager {
     for (const key of toAdd) {
       const { name, description } = this.localData.projects[key];
       await this.createProject({ key, name, description });
+
+      const repos = this.localData.projects[key].repos || {};
+      for (const slug of Object.keys(repos)) {
+        const { scmId, forkable } = repos[slug];
+        this.createRepo(key, slug, {
+          scmId,
+          forkable
+        });
+      }
     }
 
     for (const key of toRemove) {
+      const repos = this.remoteData.projects[key].repos || {};
+      for (const slug of Object.keys(repos)) {
+        this.deleteRepo(key, slug);
+      }
       await this.deleteProject(key);
     }
 

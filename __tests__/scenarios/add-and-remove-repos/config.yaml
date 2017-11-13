@@ -1,0 +1,29 @@
+---
+connection:
+  user: admin
+  password: admin
+  baseUrl: http://localhost:7995/bitbucket
+
+config:
+  users:
+    admin: ignore
+
+  groups:
+    stash-users:
+      members:
+      - admin
+      - user
+      permission: LICENSED_USER
+
+  projects:
+    PROJECT_1: ignore
+
+    EXTRA_PROJECT:
+      description: Description for Sample Project
+      name: Extra project
+      public: false
+      repos:
+        repo1:
+          forkable: true
+          public: false
+          scmId: git

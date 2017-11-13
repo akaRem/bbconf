@@ -29,6 +29,12 @@ projects:
     name: Project 1
     public: false
     type: NORMAL
+    repos:
+      rep_1:
+        forkable: true
+        public: false
+        scmId: git
+        state: AVAILABLE
 users:
   admin:
     displayName: Administrator
