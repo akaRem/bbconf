@@ -1,4 +1,4 @@
-const { diffLists } = require("./util");
+const { diffIgnoreableObjects } = require("./util");
 
 class ProjectsManager {
   constructor(app) {
@@ -18,12 +18,9 @@ class ProjectsManager {
     return this.app.client;
   }
 
-  async fetch() {
-    this.remoteData.projects = this.remoteData.projects || {};
-
-    (await this.client.get("projects", {
-      query: { limit: 1000 }
-    })).values.forEach(
+  async fetchProjects() {
+    const data = await this.client.getAll("projects");
+    data.values.forEach(
       // public is a reserved word in strict mode
       ({ key, name, description, type, ..._ }) =>
         (this.remoteData.projects[key] = {
@@ -34,48 +31,52 @@ class ProjectsManager {
         })
     );
   }
+
+  async fetch() {
+    this.remoteData.projects = this.remoteData.projects || {};
+    await this.fetchProjects();
+  }
+
+  async createProject(data) {
+    await this.client.post("projects", { data });
+  }
+
+  async updateProject(key, data) {
+    await this.client.put(`projects/${key}`, {
+      data: { key, ...data }
+    });
+  }
+
+  async deleteProject(key) {
+    await this.client.delete(`projects/${key}`);
+  }
+
   async apply() {
-    const toIgnore = Object.keys(this.localData.projects).filter(
-      slug => this.localData.projects[slug] === "ignore"
-    );
-    const [toAdd, toChange, toRemove] = diffLists(
-      Object.keys(this.localData.projects).filter(
-        slug => !toIgnore.includes(slug)
-      ),
-      Object.keys(this.remoteData.projects).filter(
-        slug => !toIgnore.includes(slug)
-      )
+    const [toAdd, toChange, toRemove] = diffIgnoreableObjects(
+      this.localData.projects,
+      this.remoteData.projects
     );
 
-    for (const projectKey of toAdd) {
-      const localProject = this.localData.projects[projectKey];
-      await this.client.post("projects", {
-        data: {
-          key: projectKey,
-          name: localProject.name,
-          description: localProject.description
-        }
-      });
+    for (const key of toAdd) {
+      const { name, description } = this.localData.projects[key];
+      await this.createProject({ key, name, description });
     }
 
-    for (const projectKey of toRemove) {
-      await this.client.delete(`projects/${projectKey}`);
+    for (const key of toRemove) {
+      await this.deleteProject(key);
     }
 
-    for (const projectKey of toChange) {
-      const localProject = this.localData.projects[projectKey];
-      const remoteProject = this.remoteData.projects[projectKey];
+    for (const key of toChange) {
+      const localProject = this.localData.projects[key];
+      const remoteProject = this.remoteData.projects[key];
       if (
         localProject.name !== remoteProject.name ||
         localProject.description !== remoteProject.description ||
         localProject.public !== remoteProject.public
       ) {
-        await this.client.put(`projects/${projectKey}`, {
-          data: {
-            key: projectKey,
-            name: localProject.name,
-            description: localProject.description
-          }
+        await this.updateProject(key, {
+          name: localProject.name,
+          description: localProject.description
         });
       }
     }
