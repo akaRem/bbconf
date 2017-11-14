@@ -3,16 +3,16 @@ const urljoin = require("url-join");
 const querystring = require("querystring");
 
 class Client {
-  constructor(app) {
-    this.app = app;
+  constructor(options) {
+    this.options = options;
     this.audit = [];
   }
 
   async req(apiEndpoint, { method, data, query }) {
     // TODO hold these things in client itself
-    const baseUrl = this.app.connectionOptions.baseUrl;
-    const password = this.app.connectionOptions.password;
-    const user = this.app.connectionOptions.user;
+    const baseUrl = this.options.baseUrl;
+    const password = this.options.password;
+    const user = this.options.user;
     const apiUrl = "rest/api/1.0";
 
     const url = urljoin(

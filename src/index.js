@@ -5,10 +5,9 @@ const { ProjectsManager } = require("./projects-manager");
 
 class Application {
   constructor(options) {
-    this.connectionOptions = options.connection;
     this.localData = options.config;
     this.remoteData = {};
-    this.client = new Client(this);
+    this.client = new Client(options.connection);
     this.usersManager = new UsersManager(this);
     this.groupsManager = new GroupsManager(this);
     this.projectsManager = new ProjectsManager(this);
