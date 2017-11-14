@@ -1,0 +1,60 @@
+---
+groups:
+  group-admin:
+    members:
+    - admin
+  group-read:
+    members:
+    - admin
+  group-write:
+    members:
+    - admin
+projects:
+  EXISTING_GROUPS_TO_REMOVE:
+    description: Description for Sample Project
+    name: EXISTING_GROUPS_TO_REMOVE
+    permissions:
+      groups: {}
+    public: false
+    repos: {}
+    type: NORMAL
+  EXISTING_TO_ADD_GROUPS:
+    description: Description for Sample Project
+    name: EXISTING_TO_ADD_GROUPS
+    permissions:
+      groups:
+        group-admin: PROJECT_ADMIN
+        group-read: PROJECT_READ
+        group-write: PROJECT_WRITE
+    public: false
+    repos: {}
+    type: NORMAL
+  NEW_W_GROUPS:
+    description: Description for Sample Project
+    name: SampleProject
+    permissions:
+      groups:
+        group-admin: PROJECT_ADMIN
+        group-read: PROJECT_READ
+        group-write: PROJECT_WRITE
+    public: false
+    repos: {}
+    type: NORMAL
+  PROJECT_1:
+    description: 'Default configuration project #1'
+    name: Project 1
+    permissions:
+      groups: {}
+    public: false
+    repos:
+      rep_1:
+        forkable: true
+        public: false
+        scmId: git
+        state: AVAILABLE
+    type: NORMAL
+users:
+  admin:
+    displayName: Administrator
+    email: admin@example.com
+    permission: SYS_ADMIN

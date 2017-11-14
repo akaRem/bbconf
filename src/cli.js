@@ -30,6 +30,7 @@ const cli = async (cwd, args) => {
     .parse(args);
   const app = new Application(opts);
   await app.apply();
+  console.log(yaml.dump(app.client.audit));
   return app;
 };
 

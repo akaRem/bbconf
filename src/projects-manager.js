@@ -47,9 +47,25 @@ class ProjectsManager {
     }
   }
 
+  async fetchGroupPermissions() {
+    for (const key of Object.keys(this.remoteData.projects)) {
+      this.remoteData.projects[key].permissions = {
+        ...(this.remoteData.projects[key].permissions || {}),
+        groups: {}
+      };
+      const data = await this.client.getAll(
+        `projects/${key}/permissions/groups`
+      );
+      data.values.forEach(({ group: { name }, permission }) => {
+        this.remoteData.projects[key].permissions.groups[name] = permission;
+      });
+    }
+  }
+
   async fetch() {
     this.remoteData.projects = this.remoteData.projects || {};
     await this.fetchProjects();
+    await this.fetchGroupPermissions();
     await this.fetchRepos();
   }
 
@@ -65,6 +81,23 @@ class ProjectsManager {
 
   async deleteProject(key) {
     await this.client.delete(`projects/${key}`);
+  }
+
+  async setProjectGroupsPermission(key, group, permission) {
+    await this.client.put(`projects/${key}/permissions/groups`, {
+      query: {
+        permission,
+        name: group
+      }
+    });
+  }
+
+  async removeProjectGroupsPermission(key, group) {
+    await this.client.delete(`projects/${key}/permissions/groups`, {
+      query: {
+        group
+      }
+    });
   }
 
   async createRepo(key, slug, data) {
@@ -83,8 +116,18 @@ class ProjectsManager {
     );
 
     for (const key of toAdd) {
-      const { name, description } = this.localData.projects[key];
+      const { name, description, permissions } = this.localData.projects[key];
       await this.createProject({ key, name, description });
+
+      if (permissions && permissions.groups) {
+        for (const group of Object.keys(permissions.groups)) {
+          this.setProjectGroupsPermission(
+            key,
+            group,
+            permissions.groups[group]
+          );
+        }
+      }
 
       const repos = this.localData.projects[key].repos || {};
       for (const slug of Object.keys(repos)) {
@@ -97,6 +140,12 @@ class ProjectsManager {
     }
 
     for (const key of toRemove) {
+      const permissions = this.remoteData.projects[key].permissions;
+      if (permissions && permissions.groups) {
+        for (const group of Object.keys(permissions.groups)) {
+          this.removeProjectGroupsPermission(key, group);
+        }
+      }
       const repos = this.remoteData.projects[key].repos || {};
       for (const slug of Object.keys(repos)) {
         this.deleteRepo(key, slug);
@@ -116,6 +165,34 @@ class ProjectsManager {
           name: localProject.name,
           description: localProject.description
         });
+      }
+      if (localProject.permissions !== "ignore" && localProject.permissions) {
+        const [
+          groupToAdd,
+          groupToChange,
+          groupToRemove
+        ] = diffIgnoreableObjects(
+          localProject.permissions.groups || {},
+          remoteProject.permissions.groups || {}
+        );
+
+        for (const group of groupToAdd) {
+          this.setProjectGroupsPermission(
+            key,
+            group,
+            localProject.permissions.groups[group]
+          );
+        }
+        for (const group of groupToChange) {
+          this.setProjectGroupsPermission(
+            key,
+            group,
+            localProject.permissions.groups[group]
+          );
+        }
+        for (const group of groupToRemove) {
+          this.setProjectGroupsPermission(key, group);
+        }
       }
     }
   }

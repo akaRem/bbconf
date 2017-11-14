@@ -10,6 +10,8 @@ projects:
     name: Project 1
     public: false
     type: NORMAL
+    permissions:
+      groups: {}
     repos:
       rep_1:
         forkable: true
@@ -22,12 +24,16 @@ projects:
     public: false
     type: NORMAL
     repos: {}
+    permissions:
+      groups: {}
   PROJECT_TO_CHANGE:
     description: Description for Sample Project - changed
     name: PROJECT_TO_CHANGE - changed
     public: false
     type: NORMAL
     repos: {}
+    permissions:
+      groups: {}
 users:
   admin:
     displayName: Administrator

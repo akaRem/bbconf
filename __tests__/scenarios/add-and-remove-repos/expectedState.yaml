@@ -10,6 +10,8 @@ projects:
     name: Project 1
     public: false
     type: NORMAL
+    permissions:
+      groups: {}
     repos:
       rep_1:
         forkable: true
@@ -21,6 +23,8 @@ projects:
     name: Extra project
     public: false
     type: NORMAL
+    permissions:
+      groups: {}
     repos:
       repo1:
         forkable: true
