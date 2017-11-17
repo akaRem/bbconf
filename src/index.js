@@ -1,16 +1,17 @@
 const { Client } = require("./client");
-const { UsersManager } = require("./users-manager");
-const { GroupsManager } = require("./groups-manager");
-const { ProjectsManager } = require("./projects-manager");
+const { Users } = require("./handlers/users");
+const { Groups } = require("./handlers/groups");
+const { Projects } = require("./handlers/projects");
 
 class Application {
   constructor(options) {
     this.localData = options.config;
     this.remoteData = {};
     this.client = new Client(options.connection);
-    this.usersManager = new UsersManager(this);
-    this.groupsManager = new GroupsManager(this);
-    this.projectsManager = new ProjectsManager(this);
+
+    this.usersManager = new Users(this);
+    this.groupsManager = new Groups(this);
+    this.projectsManager = new Projects(this);
   }
 
   async _decrypt(password) {

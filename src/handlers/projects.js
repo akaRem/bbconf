@@ -1,6 +1,6 @@
-const { diffIgnoreableObjects } = require("./util");
+const { diffIgnoreableObjects } = require("../util");
 
-class ProjectsManager {
+class Projects {
   constructor(app) {
     this.app = app;
   }
@@ -199,5 +199,5 @@ class ProjectsManager {
 }
 
 module.exports = {
-  ProjectsManager
+  Projects
 };

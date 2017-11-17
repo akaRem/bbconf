@@ -1,6 +1,6 @@
-const { diffLists, diffIgnoreableObjects } = require("./util");
+const { diffLists, diffIgnoreableObjects } = require("../util");
 
-class GroupsManager {
+class Groups {
   constructor(app) {
     this.app = app;
   }
@@ -147,5 +147,5 @@ class GroupsManager {
 }
 
 module.exports = {
-  GroupsManager
+  Groups
 };
