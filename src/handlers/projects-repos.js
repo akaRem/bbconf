@@ -5,25 +5,16 @@ class Repos {
     this.app = app;
   }
 
-  // TODO eliminate proxies
-  get localData() {
-    return this.app.localData;
-  }
-
-  get remoteData() {
-    return this.app.remoteData;
-  }
-
   get client() {
     return this.app.client;
   }
 
-  async fetch() {
-    for (const key of Object.keys(this.remoteData.projects)) {
-      this.remoteData.projects[key].repos = {};
+  async fetch(projects) {
+    for (const key of Object.keys(projects)) {
+      projects[key].repos = {};
       const data = await this.client.getAll(`projects/${key}/repos`);
       data.values.forEach(({ slug, scmId, state, forkable, ..._ }) => {
-        this.remoteData.projects[key].repos[slug] = {
+        projects[key].repos[slug] = {
           scmId,
           state,
           forkable,
@@ -31,6 +22,7 @@ class Repos {
         };
       });
     }
+    return projects;
   }
 
   async createRepo(key, slug, data) {

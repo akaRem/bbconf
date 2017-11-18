@@ -8,38 +8,30 @@ class Projects {
     this.permissions = new Permissions(this.app);
   }
 
-  // TODO eliminate proxies
-  get localData() {
-    return this.app.localData;
-  }
-
-  get remoteData() {
-    return this.app.remoteData;
-  }
-
   get client() {
     return this.app.client;
   }
 
-  async fetchProjects() {
+  async fetchProjects(projects = {}) {
     const data = await this.client.getAll("projects");
     data.values.forEach(
       // public is a reserved word in strict mode
       ({ key, name, description, type, ..._ }) =>
-        (this.remoteData.projects[key] = {
+        (projects[key] = {
           name,
           description,
           public: _.public,
           type
         })
     );
+    return projects;
   }
 
-  async fetch() {
-    this.remoteData.projects = this.remoteData.projects || {};
-    await this.fetchProjects();
-    await this.permissions.fetch(this.remoteData.projects);
-    await this.repos.fetch();
+  async fetch(projects = {}) {
+    projects = await this.fetchProjects(projects);
+    projects = await this.permissions.fetch(projects);
+    projects = await this.repos.fetch(projects);
+    return projects;
   }
 
   async createProject(data) {
@@ -73,33 +65,26 @@ class Projects {
     });
   }
 
-  async apply() {
-    const [toAdd, toChange, toRemove] = diffIgnoreableObjects(
-      this.localData.projects,
-      this.remoteData.projects
-    );
+  async apply(local, remote) {
+    const [toAdd, toChange, toRemove] = diffIgnoreableObjects(local, remote);
 
     for (const key of toAdd) {
-      const { name, description, permissions } = this.localData.projects[key];
+      const { name, description, permissions } = local[key];
       await this.createProject({ key, name, description });
       await this.permissions.apply(key, permissions);
-      await this.repos.apply(key, this.localData.projects[key].repos);
+      await this.repos.apply(key, local[key].repos);
     }
 
     for (const key of toRemove) {
-      await this.permissions.apply(
-        key,
-        {},
-        this.remoteData.projects[key].permissions
-      );
-      await this.repos.apply(key, {}, this.remoteData.projects[key].repos);
+      await this.permissions.apply(key, {}, remote[key].permissions);
+      await this.repos.apply(key, {}, remote[key].repos);
 
       await this.deleteProject(key);
     }
 
     for (const key of toChange) {
-      const localProject = this.localData.projects[key];
-      const remoteProject = this.remoteData.projects[key];
+      const localProject = local[key];
+      const remoteProject = remote[key];
       if (
         localProject.name !== remoteProject.name ||
         localProject.description !== remoteProject.description ||
@@ -116,11 +101,7 @@ class Projects {
         remoteProject.permissions
       );
 
-      await this.repos.apply(
-        key,
-        this.localData.projects[key].repos,
-        this.remoteData.projects[key].repos
-      );
+      await this.repos.apply(key, local[key].repos, remote[key].repos);
     }
   }
 }

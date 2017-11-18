@@ -21,18 +21,22 @@ class Application {
 
   async apply() {
     await this.fetch();
+
     await this.usersManager.apply(this.localData.users, this.remoteData.users);
     await this.groupsManager.apply(
       this.localData.groups,
       this.remoteData.groups
     );
-    await this.projectsManager.apply();
+    await this.projectsManager.apply(
+      this.localData.projects,
+      this.remoteData.projects
+    );
   }
 
   async fetch() {
     this.remoteData.users = await this.usersManager.fetch();
     this.remoteData.groups = await this.groupsManager.fetch();
-    await this.projectsManager.fetch();
+    this.remoteData.projects = await this.projectsManager.fetch();
   }
 }
 
