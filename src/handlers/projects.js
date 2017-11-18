@@ -38,7 +38,7 @@ class Projects {
   async fetch() {
     this.remoteData.projects = this.remoteData.projects || {};
     await this.fetchProjects();
-    await this.permissions.fetch();
+    await this.permissions.fetch(this.remoteData.projects);
     await this.repos.fetch();
   }
 
