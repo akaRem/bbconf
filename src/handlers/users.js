@@ -61,16 +61,6 @@ class Users {
     });
   }
 
-  async setUserPermission(name, permission) {
-    await this.client.put("admin/permissions/users", {
-      query: { name, permission }
-    });
-  }
-
-  async removeUserPermission(name) {
-    await this.client.delete("admin/permissions/users", { query: { name } });
-  }
-
   async apply(local, remote) {
     const [toAdd, toChange, toRemove] = diffIgnoreableObjects(local, remote);
 

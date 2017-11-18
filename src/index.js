@@ -5,13 +5,13 @@ const { Projects } = require("./handlers/projects");
 
 class Application {
   constructor(options) {
-    this.localData = options.config;
-    this.remoteData = {};
+    this.local = options.config;
+    this.remote = {};
     this.client = new Client(options.connection);
 
-    this.usersManager = new Users(this);
-    this.groupsManager = new Groups(this);
-    this.projectsManager = new Projects(this);
+    this.users = new Users(this);
+    this.groups = new Groups(this);
+    this.projects = new Projects(this);
   }
 
   async _decrypt(password) {
@@ -22,21 +22,15 @@ class Application {
   async apply() {
     await this.fetch();
 
-    await this.usersManager.apply(this.localData.users, this.remoteData.users);
-    await this.groupsManager.apply(
-      this.localData.groups,
-      this.remoteData.groups
-    );
-    await this.projectsManager.apply(
-      this.localData.projects,
-      this.remoteData.projects
-    );
+    await this.users.apply(this.local.users, this.remote.users);
+    await this.groups.apply(this.local.groups, this.remote.groups);
+    await this.projects.apply(this.local.projects, this.remote.projects);
   }
 
   async fetch() {
-    this.remoteData.users = await this.usersManager.fetch();
-    this.remoteData.groups = await this.groupsManager.fetch();
-    this.remoteData.projects = await this.projectsManager.fetch();
+    this.remote.users = await this.users.fetch();
+    this.remote.groups = await this.groups.fetch();
+    this.remote.projects = await this.projects.fetch();
   }
 }
 

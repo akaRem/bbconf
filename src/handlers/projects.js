@@ -48,23 +48,6 @@ class Projects {
     await this.client.delete(`projects/${key}`);
   }
 
-  async setProjectGroupsPermission(key, group, permission) {
-    await this.client.put(`projects/${key}/permissions/groups`, {
-      query: {
-        permission,
-        name: group
-      }
-    });
-  }
-
-  async removeProjectGroupsPermission(key, group) {
-    await this.client.delete(`projects/${key}/permissions/groups`, {
-      query: {
-        group
-      }
-    });
-  }
-
   async apply(local, remote) {
     const [toAdd, toChange, toRemove] = diffIgnoreableObjects(local, remote);
 

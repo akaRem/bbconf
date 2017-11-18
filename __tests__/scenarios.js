@@ -28,9 +28,7 @@ describe("Scenarios bundle", async () => {
       // 4. Get state and compare it with expectations
       const finalApp = new Application(loadYaml(baseDir, "config.yaml"));
       await finalApp.fetch();
-      expect(finalApp.remoteData).toEqual(
-        loadYaml(baseDir, "expectedState.yaml")
-      );
+      expect(finalApp.remote).toEqual(loadYaml(baseDir, "expectedState.yaml"));
 
       // 5. Run extra checks if necessary
       // TODO
