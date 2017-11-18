@@ -6,15 +6,6 @@ class Users {
     this.permission = new Permission(this.app);
   }
 
-  // TODO eliminate proxies
-  get localData() {
-    return this.app.localData;
-  }
-
-  get remoteData() {
-    return this.app.remoteData;
-  }
-
   get client() {
     return this.app.client;
   }
@@ -23,7 +14,7 @@ class Users {
     return this.app._decrypt;
   }
 
-  async fetchUsers() {
+  async fetchUsers(users = {}) {
     const data = await this.client.getAll("admin/users");
     data.values.forEach(({ name, emailAddress, displayName, slug }) => {
       if (slug !== name) {
@@ -31,17 +22,18 @@ class Users {
         // eslint-disable-next-line no-console
         console.warn(`UserSlug should match UserName, "${slug}" !== "${name}"`);
       }
-      this.remoteData.users[slug] = {
+      users[slug] = {
         displayName,
         email: emailAddress
       };
     });
+    return users;
   }
 
-  async fetch() {
-    this.remoteData.users = this.remoteData.users || {};
-    await this.fetchUsers();
-    await this.permission.fetch(this.remoteData.users);
+  async fetch(users = {}) {
+    users = await this.fetchUsers(users);
+    users = await this.permission.fetch(users);
+    return users;
   }
 
   async createUser(data) {
@@ -79,16 +71,11 @@ class Users {
     await this.client.delete("admin/permissions/users", { query: { name } });
   }
 
-  async apply() {
-    const [toAdd, toChange, toRemove] = diffIgnoreableObjects(
-      this.localData.users,
-      this.remoteData.users
-    );
-    const local = this.localData.users;
-    const remote = this.remoteData.users;
+  async apply(local, remote) {
+    const [toAdd, toChange, toRemove] = diffIgnoreableObjects(local, remote);
 
     for (const name of toAdd) {
-      const { email, password, displayName } = this.localData.users[name];
+      const { email, password, displayName } = local[name];
       await this.createUser({
         name,
         emailAddress: email,
@@ -98,8 +85,8 @@ class Users {
     }
 
     for (const name of toChange) {
-      const { displayName, email } = this.localData.users[name];
-      const remoteUser = this.remoteData.users[name];
+      const { displayName, email } = local[name];
+      const remoteUser = remote[name];
       if (
         email !== remoteUser.email ||
         displayName !== remoteUser.displayName
