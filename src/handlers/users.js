@@ -1,8 +1,9 @@
 const { diffIgnoreableObjects } = require("../util");
-
+const { Permission } = require("./users-permission");
 class Users {
   constructor(app) {
     this.app = app;
+    this.permission = new Permission(this.app);
   }
 
   // TODO eliminate proxies
@@ -37,18 +38,10 @@ class Users {
     });
   }
 
-  async fetchUsersPermissions() {
-    const data = await this.client.getAll("admin/permissions/users");
-    data.values.forEach(
-      ({ user: { slug }, permission }) =>
-        (this.remoteData.users[slug].permission = permission)
-    );
-  }
-
   async fetch() {
     this.remoteData.users = this.remoteData.users || {};
     await this.fetchUsers();
-    await this.fetchUsersPermissions();
+    await this.permission.fetch(this.remoteData.users);
   }
 
   async createUser(data) {
@@ -91,32 +84,21 @@ class Users {
       this.localData.users,
       this.remoteData.users
     );
+    const local = this.localData.users;
+    const remote = this.remoteData.users;
 
     for (const name of toAdd) {
-      const { email, password, displayName, permission } = this.localData.users[
-        name
-      ];
+      const { email, password, displayName } = this.localData.users[name];
       await this.createUser({
         name,
         emailAddress: email,
         displayName,
         password: await this._decrypt(password)
       });
-      if (permission) {
-        await this.setUserPermission(name, permission);
-      }
-    }
-
-    for (const name of toRemove) {
-      const { permission } = this.remoteData.users[name];
-      if (permission) {
-        await this.removeUserPermission(name);
-      }
-      await this.removeUser(name);
     }
 
     for (const name of toChange) {
-      const { displayName, email, permission } = this.localData.users[name];
+      const { displayName, email } = this.localData.users[name];
       const remoteUser = this.remoteData.users[name];
       if (
         email !== remoteUser.email ||
@@ -127,14 +109,18 @@ class Users {
           email
         });
       }
+    }
 
-      if (!permission && remoteUser.permission) {
-        await this.removeUserPermission(name);
-      }
+    for (const name of [...toAdd, ...toChange, ...toRemove]) {
+      await this.permission.apply(
+        name,
+        (local[name] || {}).permission,
+        (remote[name] || {}).permission
+      );
+    }
 
-      if (permission && permission !== remoteUser.permission) {
-        await this.setUserPermission(name, permission);
-      }
+    for (const name of toRemove) {
+      await this.removeUser(name);
     }
   }
 }
