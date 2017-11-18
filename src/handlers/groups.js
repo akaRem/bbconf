@@ -1,8 +1,10 @@
 const { diffLists, diffIgnoreableObjects } = require("../util");
+const { Members } = require("./groups-members");
 
 class Groups {
   constructor(app) {
     this.app = app;
+    this.members = new Members(this.app);
   }
 
   // TODO eliminate proxies
@@ -51,9 +53,7 @@ class Groups {
     await this.fetchGroupsPermissions();
 
     const groupsNames = Object.keys(this.remoteData.groups);
-    await Promise.all(
-      groupsNames.map(async name => this.fetchGroupMembers(name))
-    );
+    await Promise.all(groupsNames.map(async name => this.members.fetch(name)));
   }
 
   async createGroup(groupName) {
@@ -78,20 +78,6 @@ class Groups {
       query: { name: groupName }
     });
   }
-  async addGroupMembers(groupName, members) {
-    for (const userSlug of members || []) {
-      await this.client.post("admin/groups/add-user", {
-        data: { context: groupName, itemName: userSlug }
-      });
-    }
-  }
-  async removeGroupMembers(groupName, members) {
-    for (const userSlug of members || []) {
-      await this.client.post("admin/groups/remove-user", {
-        data: { context: groupName, itemName: userSlug }
-      });
-    }
-  }
 
   async apply() {
     const [toAdd, toChange, toRemove] = diffIgnoreableObjects(
@@ -105,16 +91,7 @@ class Groups {
       if (localGroup.permission) {
         await this.setGroupPermission(groupName, localGroup.permission);
       }
-      if (localGroup.members !== "ignore") {
-        this.addGroupMembers(groupName, localGroup.members);
-      }
-    }
-
-    for (const groupName of toRemove) {
-      const remoteGroup = this.remoteData.groups[groupName];
-      await this.removeGroupMembers(groupName, remoteGroup.members);
-      await this.deleteGroupPermission(groupName);
-      await this.deleteGroup(groupName);
+      await this.members.apply(groupName, localGroup.members, []);
     }
 
     for (const groupName of toChange) {
@@ -133,15 +110,18 @@ class Groups {
         await this.deleteGroupPermission(groupName);
       }
 
-      if (localGroup.members !== "ignore") {
-        const [usersToAdd, , usersToRemove] = diffLists(
-          localGroup.members || [],
-          remoteGroup.members || []
-        );
+      await this.members.apply(
+        groupName,
+        localGroup.members,
+        remoteGroup.members
+      );
+    }
 
-        await this.addGroupMembers(groupName, usersToAdd);
-        await this.removeGroupMembers(groupName, usersToRemove);
-      }
+    for (const groupName of toRemove) {
+      const remoteGroup = this.remoteData.groups[groupName];
+      await this.members.apply(groupName, [], remoteGroup.members);
+      await this.deleteGroupPermission(groupName);
+      await this.deleteGroup(groupName);
     }
   }
 }
