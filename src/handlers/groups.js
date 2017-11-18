@@ -1,10 +1,12 @@
 const { diffLists, diffIgnoreableObjects } = require("../util");
 const { Members } = require("./groups-members");
+const { Permission } = require("./groups-permission");
 
 class Groups {
   constructor(app) {
     this.app = app;
     this.members = new Members(this.app);
+    this.permission = new Permission(this.app);
   }
 
   // TODO eliminate proxies
@@ -50,7 +52,7 @@ class Groups {
   async fetch() {
     this.remoteData.groups = this.remoteData.groups || {};
     await this.fetchGroupsNames();
-    await this.fetchGroupsPermissions();
+    await this.permission.fetch();
 
     const groupsNames = Object.keys(this.remoteData.groups);
     await Promise.all(groupsNames.map(async name => this.members.fetch(name)));
@@ -67,18 +69,6 @@ class Groups {
     });
   }
 
-  async setGroupPermission(groupName, permission) {
-    await this.client.put("admin/permissions/groups", {
-      query: { name: groupName, permission }
-    });
-  }
-
-  async deleteGroupPermission(groupName) {
-    await this.client.delete("admin/permissions/groups", {
-      query: { name: groupName }
-    });
-  }
-
   async apply() {
     const [toAdd, toChange, toRemove] = diffIgnoreableObjects(
       this.localData.groups,
@@ -88,9 +78,7 @@ class Groups {
     for (const groupName of toAdd) {
       const localGroup = this.localData.groups[groupName];
       await this.createGroup(groupName);
-      if (localGroup.permission) {
-        await this.setGroupPermission(groupName, localGroup.permission);
-      }
+      await this.permission.apply(groupName, localGroup.permission);
       await this.members.apply(groupName, localGroup.members, []);
     }
 
@@ -98,17 +86,11 @@ class Groups {
       const localGroup = this.localData.groups[groupName];
       const remoteGroup = this.remoteData.groups[groupName];
 
-      if (
-        localGroup.permission &&
-        localGroup.permission !== "ignore" &&
-        localGroup.permission !== remoteGroup.permission
-      ) {
-        await this.setGroupPermission(groupName, localGroup.permission);
-      }
-
-      if (!localGroup.permission && remoteGroup.permission) {
-        await this.deleteGroupPermission(groupName);
-      }
+      await this.permission.apply(
+        groupName,
+        localGroup.permission,
+        remoteGroup.permission
+      );
 
       await this.members.apply(
         groupName,
@@ -120,7 +102,7 @@ class Groups {
     for (const groupName of toRemove) {
       const remoteGroup = this.remoteData.groups[groupName];
       await this.members.apply(groupName, [], remoteGroup.members);
-      await this.deleteGroupPermission(groupName);
+      await this.permission.apply(groupName, undefined, remoteGroup.permission);
       await this.deleteGroup(groupName);
     }
   }
