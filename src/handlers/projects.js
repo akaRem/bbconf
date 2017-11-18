@@ -1,8 +1,10 @@
 const { diffIgnoreableObjects } = require("../util");
+const { Repos } = require("./projects-repos");
 
 class Projects {
   constructor(app) {
     this.app = app;
+    this.repos = new Repos(this.app);
   }
 
   // TODO eliminate proxies
@@ -32,21 +34,6 @@ class Projects {
     );
   }
 
-  async fetchRepos() {
-    for (const key of Object.keys(this.remoteData.projects)) {
-      this.remoteData.projects[key].repos = {};
-      const data = await this.client.getAll(`projects/${key}/repos`);
-      data.values.forEach(({ slug, scmId, state, forkable, ..._ }) => {
-        this.remoteData.projects[key].repos[slug] = {
-          scmId,
-          state,
-          forkable,
-          public: _.public
-        };
-      });
-    }
-  }
-
   async fetchGroupPermissions() {
     for (const key of Object.keys(this.remoteData.projects)) {
       this.remoteData.projects[key].permissions = {
@@ -66,7 +53,7 @@ class Projects {
     this.remoteData.projects = this.remoteData.projects || {};
     await this.fetchProjects();
     await this.fetchGroupPermissions();
-    await this.fetchRepos();
+    await this.repos.fetch();
   }
 
   async createProject(data) {
@@ -100,15 +87,6 @@ class Projects {
     });
   }
 
-  async createRepo(key, slug, data) {
-    await this.client.post(`projects/${key}/repos`, {
-      data: { name: slug, ...data }
-    });
-  }
-  async deleteRepo(key, slug) {
-    await this.client.delete(`projects/${key}/repos/${slug}`);
-  }
-
   async apply() {
     const [toAdd, toChange, toRemove] = diffIgnoreableObjects(
       this.localData.projects,
@@ -129,14 +107,7 @@ class Projects {
         }
       }
 
-      const repos = this.localData.projects[key].repos || {};
-      for (const slug of Object.keys(repos)) {
-        const { scmId, forkable } = repos[slug];
-        this.createRepo(key, slug, {
-          scmId,
-          forkable
-        });
-      }
+      await this.repos.apply(key, this.localData.projects[key].repos);
     }
 
     for (const key of toRemove) {
@@ -146,10 +117,9 @@ class Projects {
           this.removeProjectGroupsPermission(key, group);
         }
       }
-      const repos = this.remoteData.projects[key].repos || {};
-      for (const slug of Object.keys(repos)) {
-        this.deleteRepo(key, slug);
-      }
+
+      await this.repos.apply(key, {}, this.remoteData.projects[key].repos);
+
       await this.deleteProject(key);
     }
 
@@ -194,6 +164,12 @@ class Projects {
           this.setProjectGroupsPermission(key, group);
         }
       }
+
+      await this.repos.apply(
+        key,
+        this.localData.projects[key].repos,
+        this.remoteData.projects[key].repos
+      );
     }
   }
 }
