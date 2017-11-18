@@ -1,5 +1,3 @@
-const { diffLists, diffIgnoreableObjects } = require("../util");
-
 class Permission {
   constructor(app) {
     this.app = app;

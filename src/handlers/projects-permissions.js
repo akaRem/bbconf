@@ -1,14 +1,9 @@
-const { diffIgnoreableObjects } = require("../util");
 const { Groups } = require("./projects-permissions-groups");
 
 class Permissions {
   constructor(app) {
     this.app = app;
     this.groups = new Groups(this.app);
-  }
-
-  get client() {
-    return this.app.client;
   }
 
   async fetch(obj) {

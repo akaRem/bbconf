@@ -1,4 +1,4 @@
-const { diffLists, diffIgnoreableObjects } = require("../util");
+const { diffIgnoreableObjects } = require("../util");
 const { Members } = require("./groups-members");
 const { Permission } = require("./groups-permission");
 

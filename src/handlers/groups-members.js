@@ -1,4 +1,4 @@
-const { diffLists, diffIgnoreableObjects } = require("../util");
+const { diffLists } = require("../util");
 
 class Members {
   constructor(app) {
