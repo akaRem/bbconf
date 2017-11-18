@@ -1,10 +1,11 @@
 const { diffIgnoreableObjects } = require("../util");
 const { Repos } = require("./projects-repos");
-
+const { Permissions } = require("./projects-permissions");
 class Projects {
   constructor(app) {
     this.app = app;
     this.repos = new Repos(this.app);
+    this.permissions = new Permissions(this.app);
   }
 
   // TODO eliminate proxies
@@ -34,25 +35,10 @@ class Projects {
     );
   }
 
-  async fetchGroupPermissions() {
-    for (const key of Object.keys(this.remoteData.projects)) {
-      this.remoteData.projects[key].permissions = {
-        ...(this.remoteData.projects[key].permissions || {}),
-        groups: {}
-      };
-      const data = await this.client.getAll(
-        `projects/${key}/permissions/groups`
-      );
-      data.values.forEach(({ group: { name }, permission }) => {
-        this.remoteData.projects[key].permissions.groups[name] = permission;
-      });
-    }
-  }
-
   async fetch() {
     this.remoteData.projects = this.remoteData.projects || {};
     await this.fetchProjects();
-    await this.fetchGroupPermissions();
+    await this.permissions.fetch();
     await this.repos.fetch();
   }
 
@@ -96,28 +82,16 @@ class Projects {
     for (const key of toAdd) {
       const { name, description, permissions } = this.localData.projects[key];
       await this.createProject({ key, name, description });
-
-      if (permissions && permissions.groups) {
-        for (const group of Object.keys(permissions.groups)) {
-          this.setProjectGroupsPermission(
-            key,
-            group,
-            permissions.groups[group]
-          );
-        }
-      }
-
+      await this.permissions.apply(key, permissions);
       await this.repos.apply(key, this.localData.projects[key].repos);
     }
 
     for (const key of toRemove) {
-      const permissions = this.remoteData.projects[key].permissions;
-      if (permissions && permissions.groups) {
-        for (const group of Object.keys(permissions.groups)) {
-          this.removeProjectGroupsPermission(key, group);
-        }
-      }
-
+      await this.permissions.apply(
+        key,
+        {},
+        this.remoteData.projects[key].permissions
+      );
       await this.repos.apply(key, {}, this.remoteData.projects[key].repos);
 
       await this.deleteProject(key);
@@ -136,34 +110,11 @@ class Projects {
           description: localProject.description
         });
       }
-      if (localProject.permissions !== "ignore" && localProject.permissions) {
-        const [
-          groupToAdd,
-          groupToChange,
-          groupToRemove
-        ] = diffIgnoreableObjects(
-          localProject.permissions.groups || {},
-          remoteProject.permissions.groups || {}
-        );
-
-        for (const group of groupToAdd) {
-          this.setProjectGroupsPermission(
-            key,
-            group,
-            localProject.permissions.groups[group]
-          );
-        }
-        for (const group of groupToChange) {
-          this.setProjectGroupsPermission(
-            key,
-            group,
-            localProject.permissions.groups[group]
-          );
-        }
-        for (const group of groupToRemove) {
-          this.setProjectGroupsPermission(key, group);
-        }
-      }
+      await this.permissions.apply(
+        key,
+        localProject.permissions,
+        remoteProject.permissions
+      );
 
       await this.repos.apply(
         key,
