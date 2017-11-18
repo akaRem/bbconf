@@ -5,28 +5,20 @@ class Permission {
     this.app = app;
   }
 
-  // TODO eliminate proxies
-  get localData() {
-    return this.app.localData;
-  }
-
-  get remoteData() {
-    return this.app.remoteData;
-  }
-
   get client() {
     return this.app.client;
   }
 
-  async fetch() {
+  async fetch(obj = {}) {
     const data = await this.client.getAll("admin/permissions/groups");
     data.values.forEach(({ group: { name }, permission }) => {
       // workaround
       // group may be deleted but permissions are continue to exist
       // and it looks like ok to delete deleted group
-      this.remoteData.groups[name] = this.remoteData.groups[name] || {};
-      this.remoteData.groups[name].permission = permission;
+      obj[name] = obj[name] || {};
+      obj[name].permission = permission;
     });
+    return obj;
   }
 
   async setGroupPermission(groupName, permission) {

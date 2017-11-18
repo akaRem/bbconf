@@ -5,26 +5,16 @@ class Members {
     this.app = app;
   }
 
-  // TODO eliminate proxies
-  get localData() {
-    return this.app.localData;
-  }
-
-  get remoteData() {
-    return this.app.remoteData;
-  }
-
   get client() {
     return this.app.client;
   }
 
-  async fetch(groupName) {
+  async fetch(groupName, obj = {}) {
     const data = await this.client.getAll("admin/groups/more-members", {
       query: { context: groupName }
     });
-    this.remoteData.groups[groupName].members = data.values.map(
-      ({ slug }) => slug
-    );
+    obj[groupName].members = data.values.map(({ slug }) => slug);
+    return obj;
   }
 
   async addGroupMembers(groupName, members) {
@@ -34,6 +24,7 @@ class Members {
       });
     }
   }
+
   async removeGroupMembers(groupName, members) {
     for (const userSlug of members || []) {
       await this.client.post("admin/groups/remove-user", {

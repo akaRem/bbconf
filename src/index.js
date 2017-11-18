@@ -20,17 +20,18 @@ class Application {
   }
 
   async apply() {
-    if (!this.remoteData.length) {
-      await this.fetch();
-    }
+    await this.fetch();
     await this.usersManager.apply();
-    await this.groupsManager.apply();
+    await this.groupsManager.apply(
+      this.localData.groups,
+      this.remoteData.groups
+    );
     await this.projectsManager.apply();
   }
 
   async fetch() {
     await this.usersManager.fetch();
-    await this.groupsManager.fetch();
+    this.remoteData.groups = await this.groupsManager.fetch();
     await this.projectsManager.fetch();
   }
 }
