@@ -1,0 +1,43 @@
+connection:
+  user: admin
+  password: admin
+  baseUrl: http://localhost:7995/bitbucket
+
+config:
+
+  users:
+    admin: ignore
+    user-read:
+      displayName: User1
+      email: user@example.com
+      password: user
+    user-write:
+      displayName: User2
+      email: user@example.com
+      password: user
+    user-admin:
+      displayName: User3
+      email: user@example.com
+      password: user
+
+  groups:
+    stash-users: ignore
+
+  projects:
+    PROJECT_1: ignore
+
+    EXISTING_PERMISSIONS_TO_REMOVE:
+      description: Description for Sample Project
+      name: EXISTING_PERMISSIONS_TO_REMOVE
+      public: false
+
+      permissions:
+        users:
+          user-read: PROJECT_READ
+          user-write: PROJECT_WRITE
+          user-admin: PROJECT_ADMIN
+
+    EXISTING_TO_ADD_PERMISSIONS:
+      description: Description for Sample Project
+      name: EXISTING_TO_ADD_PERMISSIONS
+      public: false

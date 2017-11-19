@@ -30,6 +30,8 @@ projects:
     public: false
     type: NORMAL
     permissions:
+      users:
+        admin: PROJECT_ADMIN
       groups: {}
     repos:
       rep_1:

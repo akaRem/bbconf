@@ -37,31 +37,33 @@ class Groups {
   }
 
   async apply(local, remote) {
-    const [toAdd, toChange, toRemove] = diffIgnoreableObjects(local, remote);
+    if (local !== "ignore" && local) {
+      const [toAdd, toChange, toRemove] = diffIgnoreableObjects(local, remote);
 
-    for (const groupName of toAdd) {
-      await this.createGroup(groupName);
-    }
+      for (const groupName of toAdd) {
+        await this.createGroup(groupName);
+      }
 
-    for (const groupName of [...toAdd, ...toChange, ...toRemove]) {
-      const localGroup = local[groupName];
-      const remoteGroup = remote[groupName];
+      for (const groupName of [...toAdd, ...toChange, ...toRemove]) {
+        const localGroup = local[groupName];
+        const remoteGroup = remote[groupName];
 
-      await this.permission.apply(
-        groupName,
-        (localGroup || {}).permission,
-        (remoteGroup || {}).permission
-      );
+        await this.permission.apply(
+          groupName,
+          (localGroup || {}).permission,
+          (remoteGroup || {}).permission
+        );
 
-      await this.members.apply(
-        groupName,
-        (localGroup || {}).members,
-        (remoteGroup || {}).members
-      );
-    }
+        await this.members.apply(
+          groupName,
+          (localGroup || {}).members,
+          (remoteGroup || {}).members
+        );
+      }
 
-    for (const groupName of toRemove) {
-      await this.deleteGroup(groupName);
+      for (const groupName of toRemove) {
+        await this.deleteGroup(groupName);
+      }
     }
   }
 }

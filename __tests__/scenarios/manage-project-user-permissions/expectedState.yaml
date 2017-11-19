@@ -1,45 +1,36 @@
 ---
-groups:
-  group-admin:
-    members:
-    - admin
-  group-read:
-    members:
-    - admin
-  group-write:
-    members:
-    - admin
+groups: {}
 projects:
-  EXISTING_GROUPS_TO_REMOVE:
+  EXISTING_PERMISSIONS_TO_REMOVE:
     description: Description for Sample Project
-    name: EXISTING_GROUPS_TO_REMOVE
+    name: EXISTING_PERMISSIONS_TO_REMOVE
     permissions:
-      users: {}
       groups: {}
+      users: {}
     public: false
     repos: {}
     type: NORMAL
-  EXISTING_TO_ADD_GROUPS:
+  EXISTING_TO_ADD_PERMISSIONS:
     description: Description for Sample Project
-    name: EXISTING_TO_ADD_GROUPS
+    name: EXISTING_TO_ADD_PERMISSIONS
     permissions:
-      users: {}
-      groups:
-        group-admin: PROJECT_ADMIN
-        group-read: PROJECT_READ
-        group-write: PROJECT_WRITE
+      groups: {}
+      users:
+        user-read: PROJECT_READ
+        user-write: PROJECT_WRITE
+        user-admin: PROJECT_ADMIN
     public: false
     repos: {}
     type: NORMAL
-  NEW_W_GROUPS:
+  NEW_W_PERMISSIONS:
     description: Description for Sample Project
-    name: SampleProject
+    name: NEW_W_PERMISSIONS
     permissions:
-      users: {}
-      groups:
-        group-admin: PROJECT_ADMIN
-        group-read: PROJECT_READ
-        group-write: PROJECT_WRITE
+      groups: {}
+      users:
+        user-read: PROJECT_READ
+        user-write: PROJECT_WRITE
+        user-admin: PROJECT_ADMIN
     public: false
     repos: {}
     type: NORMAL
@@ -63,4 +54,16 @@ users:
     displayName: Administrator
     email: admin@example.com
     permission: SYS_ADMIN
+    sshKeys: []
+  user-read:
+    displayName: User1
+    email: user@example.com
+    sshKeys: []
+  user-write:
+    displayName: User2
+    email: user@example.com
+    sshKeys: []
+  user-admin:
+    displayName: User3
+    email: user@example.com
     sshKeys: []

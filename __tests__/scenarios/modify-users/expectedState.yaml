@@ -12,6 +12,8 @@ projects:
     type: NORMAL
     permissions:
       groups: {}
+      users:
+        admin: PROJECT_ADMIN
     repos:
       rep_1:
         forkable: true

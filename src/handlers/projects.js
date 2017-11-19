@@ -54,7 +54,17 @@ class Projects {
     for (const key of toAdd) {
       const { name, description, permissions } = local[key];
       await this.createProject({ key, name, description });
-      await this.permissions.apply(key, permissions);
+
+      // NOTE When new project is created, it's creator is granted with admin
+      // TODO Decide, whether to fix it right now or after next run of tool
+      const newlyCreatedProjectPermissions = {
+        users: { [this.app.connection.user]: "PROJECT_ADMIN" }
+      };
+      await this.permissions.apply(
+        key,
+        permissions,
+        newlyCreatedProjectPermissions
+      );
       await this.repos.apply(key, local[key].repos);
     }
 

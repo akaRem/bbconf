@@ -27,6 +27,7 @@ describe("Scenarios bundle", async () => {
       // 3. Run scenario
       const app = new Application(baseDir, loadYaml(baseDir, "config.yaml"));
       await app.apply();
+      // console.log(require("js-yaml").dump(app.client.audit));
 
       // 4. Get state and compare it with expectations
       const finalApp = new Application(

@@ -1,0 +1,44 @@
+---
+connection:
+  user: admin
+  password: admin
+  baseUrl: http://localhost:7995/bitbucket
+
+config:
+  users:
+    admin: ignore
+    user-read: ignore
+    user-write: ignore
+    user-admin: ignore
+
+  groups: ignore
+
+  projects:
+    PROJECT_1: ignore
+
+    NEW_W_PERMISSIONS:
+      description: Description for Sample Project
+      name: NEW_W_PERMISSIONS
+      public: false
+
+      permissions:
+        users:
+          user-read: PROJECT_READ
+          user-write: PROJECT_WRITE
+          user-admin: PROJECT_ADMIN
+
+    EXISTING_PERMISSIONS_TO_REMOVE:
+      description: Description for Sample Project
+      name: EXISTING_PERMISSIONS_TO_REMOVE
+      public: false
+
+    EXISTING_TO_ADD_PERMISSIONS:
+      description: Description for Sample Project
+      name: EXISTING_TO_ADD_PERMISSIONS
+      public: false
+
+      permissions:
+        users:
+          user-read: PROJECT_READ
+          user-write: PROJECT_WRITE
+          user-admin: PROJECT_ADMIN

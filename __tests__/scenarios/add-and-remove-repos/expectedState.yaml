@@ -11,6 +11,8 @@ projects:
     public: false
     type: NORMAL
     permissions:
+      users:
+        admin: PROJECT_ADMIN
       groups: {}
     repos:
       rep_1:
@@ -24,6 +26,7 @@ projects:
     public: false
     type: NORMAL
     permissions:
+      users: {}
       groups:
         stash-users: "PROJECT_ADMIN"
     repos:

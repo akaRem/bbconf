@@ -11,6 +11,8 @@ projects:
     public: false
     type: NORMAL
     permissions:
+      users:
+        admin: PROJECT_ADMIN
       groups: {}
     repos:
       rep_1:
@@ -25,6 +27,7 @@ projects:
     type: NORMAL
     repos: {}
     permissions:
+      users: {}
       groups: {}
   PROJECT_TO_CHANGE:
     description: Description for Sample Project - changed
@@ -33,6 +36,7 @@ projects:
     type: NORMAL
     repos: {}
     permissions:
+      users: {}
       groups: {}
 users:
   admin:
