@@ -1,9 +1,11 @@
 const { diffIgnoreableObjects } = require("../util");
 const { Permission } = require("./users-permission");
+const { Keys } = require("./users-keys");
 class Users {
   constructor(app) {
     this.app = app;
     this.permission = new Permission(this.app);
+    this.keys = new Keys(this.app);
   }
 
   get client() {
@@ -15,7 +17,7 @@ class Users {
   }
 
   async fetchUsers(users = {}) {
-    const data = await this.client.getAll("admin/users");
+    const data = await this.client.getAll("rest/api/1.0/admin/users");
     data.values.forEach(({ name, emailAddress, displayName, slug }) => {
       if (slug !== name) {
         // FIXME console.warn
@@ -33,11 +35,15 @@ class Users {
   async fetch(users = {}) {
     users = await this.fetchUsers(users);
     users = await this.permission.fetch(users);
+    for (const userName of Object.keys(users)) {
+      this.keys.fetch(userName, users);
+    }
+
     return users;
   }
 
   async createUser(data) {
-    await this.client.post("admin/users", {
+    await this.client.post("rest/api/1.0/admin/users", {
       query: {
         addToDefaultGroup: false,
         notify: false,
@@ -47,7 +53,7 @@ class Users {
   }
 
   async updateUser(name, data) {
-    await this.client.put("admin/users", {
+    await this.client.put("rest/api/1.0/admin/users", {
       data: {
         name,
         ...data
@@ -56,7 +62,7 @@ class Users {
   }
 
   async removeUser(name) {
-    await this.client.delete("admin/users", {
+    await this.client.delete("rest/api/1.0/admin/users", {
       query: { name }
     });
   }
@@ -93,6 +99,11 @@ class Users {
         name,
         (local[name] || {}).permission,
         (remote[name] || {}).permission
+      );
+      await this.keys.apply(
+        name,
+        (local[name] || {}).sshKeys,
+        (remote[name] || {}).sshKeys
       );
     }
 

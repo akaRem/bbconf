@@ -24,6 +24,9 @@ users:
     displayName: Administrator
     email: admin@example.com
     permission: SYS_ADMIN
+    sshKeys: []
   user:
     displayName: User
     email: user@example.com
+    sshKeys:
+    - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDAPzpi5NF7PQhHTt8JkvcP+2STmo0roAmiil/3o/0OfHuOAbCWuhAKED/ee5x0QuLtVUu3zPfzf8BLnnh9P6x5E0rGqhMW9biYeQ+o8XmbUewoslgYVUBHsIxfejsO3+OMZ96JkwB0emRc2TB7VEfkyqpc18mboKUJkk7BVnO6bTP3XVGLVBeUnz/OODAl4J34yAByM5s3gjQJfZEQneNhmSrEYFaYc05bCAH2loYrX31uIqyPxies40yD2bPp+xTtY5nUvy/jVZhhJcVAjX8Zd0iGDqX03QjwdtwYX+SulzX1diuRmiVP8u3tUlQVjvtVP9/EVfen9Za7kHGNFPIF user@example.com

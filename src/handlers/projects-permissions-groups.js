@@ -10,7 +10,9 @@ class Groups {
   }
 
   async fetch(key, obj = {}) {
-    const data = await this.client.getAll(`projects/${key}/permissions/groups`);
+    const data = await this.client.getAll(
+      `rest/api/1.0/projects/${key}/permissions/groups`
+    );
     data.values.forEach(({ group: { name }, permission }) => {
       obj[name] = permission;
     });
@@ -18,7 +20,7 @@ class Groups {
   }
 
   async setProjectGroupsPermission(key, group, permission) {
-    await this.client.put(`projects/${key}/permissions/groups`, {
+    await this.client.put(`rest/api/1.0/projects/${key}/permissions/groups`, {
       query: {
         permission,
         name: group
@@ -27,11 +29,14 @@ class Groups {
   }
 
   async removeProjectGroupsPermission(key, group) {
-    await this.client.delete(`projects/${key}/permissions/groups`, {
-      query: {
-        group
+    await this.client.delete(
+      `rest/api/1.0/projects/${key}/permissions/groups`,
+      {
+        query: {
+          group
+        }
       }
-    });
+    );
   }
 
   async apply(key, local = {}, remote = {}) {

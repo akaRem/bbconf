@@ -13,7 +13,7 @@ class Projects {
   }
 
   async fetchProjects(projects = {}) {
-    const data = await this.client.getAll("projects");
+    const data = await this.client.getAll("rest/api/1.0/projects");
     data.values.forEach(
       // public is a reserved word in strict mode
       ({ key, name, description, type, ..._ }) =>
@@ -35,17 +35,17 @@ class Projects {
   }
 
   async createProject(data) {
-    await this.client.post("projects", { data });
+    await this.client.post("rest/api/1.0/projects", { data });
   }
 
   async updateProject(key, data) {
-    await this.client.put(`projects/${key}`, {
+    await this.client.put(`rest/api/1.0/projects/${key}`, {
       data: { key, ...data }
     });
   }
 
   async deleteProject(key) {
-    await this.client.delete(`projects/${key}`);
+    await this.client.delete(`rest/api/1.0/projects/${key}`);
   }
 
   async apply(local, remote) {

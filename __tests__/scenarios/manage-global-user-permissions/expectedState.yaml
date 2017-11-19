@@ -23,35 +23,44 @@ users:
     displayName: Administrator
     email: admin@example.com
     permission: SYS_ADMIN
+    sshKeys: []
   # remove permissions
   user_r1:
     displayName: user_r1
     email: user_r1@example.com
+    sshKeys: []
   user_r2:
     displayName: user_r2
     email: user_r2@example.com
+    sshKeys: []
   user_r3:
     displayName: user_r3
     email: user_r3@example.com
+    sshKeys: []
   # create user with permissions
   user_c1:
     displayName: user_c1
     email: user_c1@example.com
     permission: SYS_ADMIN
+    sshKeys: []
   user_c2:
     displayName: user_c2
     email: user_c2@example.com
     permission: ADMIN
+    sshKeys: []
   user_c3:
     displayName: user_c3
     email: user_c3@example.com
     permission: PROJECT_CREATE
+    sshKeys: []
   # modify permissions
   user_sa_to_a:
     displayName: user_sa_to_a
     email: user_sa_to_a@example.com
     permission: ADMIN
+    sshKeys: []
   user_a_to_sa:
     displayName: user_a_to_sa
     email: user_a_to_sa@example.com
     permission: SYS_ADMIN
+    sshKeys: []

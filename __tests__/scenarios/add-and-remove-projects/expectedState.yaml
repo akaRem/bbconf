@@ -39,3 +39,4 @@ users:
     displayName: Administrator
     email: admin@example.com
     permission: SYS_ADMIN
+    sshKeys: []

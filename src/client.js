@@ -13,11 +13,9 @@ class Client {
     const baseUrl = this.options.baseUrl;
     const password = this.options.password;
     const user = this.options.user;
-    const apiUrl = "rest/api/1.0";
 
     const url = urljoin(
       baseUrl,
-      apiUrl,
       apiEndpoint,
       query ? "?" + querystring.stringify(query) : ""
     );

@@ -14,7 +14,7 @@ class Groups {
   }
 
   async fetchGroupsNames(obj = {}) {
-    const data = await this.client.getAll("admin/groups");
+    const data = await this.client.getAll("rest/api/1.0/admin/groups");
     data.values.forEach(({ name }) => (obj[name] = {}));
     return obj;
   }
@@ -29,11 +29,11 @@ class Groups {
   }
 
   async createGroup(name) {
-    await this.client.post("admin/groups", { query: { name } });
+    await this.client.post("rest/api/1.0/admin/groups", { query: { name } });
   }
 
   async deleteGroup(name) {
-    await this.client.delete("admin/groups", { query: { name } });
+    await this.client.delete("rest/api/1.0/admin/groups", { query: { name } });
   }
 
   async apply(local, remote) {

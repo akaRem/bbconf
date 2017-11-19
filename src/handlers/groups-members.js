@@ -10,16 +10,19 @@ class Members {
   }
 
   async fetch(groupName, obj = {}) {
-    const data = await this.client.getAll("admin/groups/more-members", {
-      query: { context: groupName }
-    });
+    const data = await this.client.getAll(
+      "rest/api/1.0/admin/groups/more-members",
+      {
+        query: { context: groupName }
+      }
+    );
     obj[groupName].members = data.values.map(({ slug }) => slug);
     return obj;
   }
 
   async addGroupMembers(groupName, members) {
     for (const userSlug of members || []) {
-      await this.client.post("admin/groups/add-user", {
+      await this.client.post("rest/api/1.0/admin/groups/add-user", {
         data: { context: groupName, itemName: userSlug }
       });
     }
@@ -27,7 +30,7 @@ class Members {
 
   async removeGroupMembers(groupName, members) {
     for (const userSlug of members || []) {
-      await this.client.post("admin/groups/remove-user", {
+      await this.client.post("rest/api/1.0/admin/groups/remove-user", {
         data: { context: groupName, itemName: userSlug }
       });
     }

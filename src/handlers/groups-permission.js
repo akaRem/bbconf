@@ -8,7 +8,9 @@ class Permission {
   }
 
   async fetch(obj = {}) {
-    const data = await this.client.getAll("admin/permissions/groups");
+    const data = await this.client.getAll(
+      "rest/api/1.0/admin/permissions/groups"
+    );
     data.values.forEach(({ group: { name }, permission }) => {
       // workaround
       // group may be deleted but permissions are continue to exist
@@ -20,13 +22,13 @@ class Permission {
   }
 
   async setGroupPermission(groupName, permission) {
-    await this.client.put("admin/permissions/groups", {
+    await this.client.put("rest/api/1.0/admin/permissions/groups", {
       query: { name: groupName, permission }
     });
   }
 
   async deleteGroupPermission(groupName) {
-    await this.client.delete("admin/permissions/groups", {
+    await this.client.delete("rest/api/1.0/admin/permissions/groups", {
       query: { name: groupName }
     });
   }
