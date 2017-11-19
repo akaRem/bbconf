@@ -20,6 +20,9 @@ projects:
         public: false
         scmId: git
         state: AVAILABLE
+        permissions:
+          users: {}
+          groups: {}
 users:
   admin:
     displayName: Administrator

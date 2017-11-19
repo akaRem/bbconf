@@ -11,9 +11,10 @@ class Permission {
     const data = await this.client.getAll(
       "rest/api/1.0/admin/permissions/users"
     );
-    data.values.forEach(
-      ({ user: { slug }, permission }) => (obj[slug].permission = permission)
-    );
+    data.values.forEach(({ user: { slug }, permission }) => {
+      obj[slug] = obj[slug] || {};
+      obj[slug].permission = permission;
+    });
     return obj;
   }
 

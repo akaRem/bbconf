@@ -1,9 +1,12 @@
 const { diffIgnoreableObjects } = require("../util");
 const { Init } = require("./projects-repos-init");
+const { Permissions } = require("./projects-repos-permissions");
+
 class Repos {
   constructor(app) {
     this.app = app;
     this.init = new Init(this.app);
+    this.permissions = new Permissions(this.app);
   }
 
   get client() {
@@ -24,6 +27,9 @@ class Repos {
           public: _.public
         };
       });
+      for (const slug of Object.keys(projects[key].repos)) {
+        await this.permissions.fetch(key, slug, projects[key].repos[slug]);
+      }
     }
     return projects;
   }
@@ -39,20 +45,36 @@ class Repos {
 
   async apply(key, local = {}, remote = {}) {
     if (local !== "ignore") {
-      const [toAdd, , toRemove] = diffIgnoreableObjects(
+      const [toAdd, toChange, toRemove] = diffIgnoreableObjects(
         local || {},
         remote || {}
       );
+
       for (const slug of toAdd) {
         const { scmId, forkable } = local[slug];
         await this.createRepo(key, slug, {
           scmId,
           forkable
         });
+        await this.permissions.apply(key, slug, local[slug].permissions);
         await this.init.apply(key, slug, local[slug]);
+      }
+      for (const slug of toChange) {
+        await this.permissions.apply(
+          key,
+          slug,
+          local[slug].permissions,
+          remote[slug].permissions
+        );
       }
 
       for (const slug of toRemove) {
+        await this.permissions.apply(
+          key,
+          slug,
+          undefined,
+          remote[slug].permissions
+        );
         await this.deleteRepo(key, slug);
       }
     }

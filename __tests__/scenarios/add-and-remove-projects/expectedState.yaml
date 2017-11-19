@@ -20,6 +20,9 @@ projects:
         public: false
         scmId: git
         state: AVAILABLE
+        permissions:
+          users: {}
+          groups: {}
   PROJECT_TO_ADD:
     description: Description for Sample Project
     name: PROJECT_TO_ADD

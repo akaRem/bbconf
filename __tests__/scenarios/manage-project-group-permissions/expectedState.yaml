@@ -57,6 +57,9 @@ projects:
         public: false
         scmId: git
         state: AVAILABLE
+        permissions:
+          users: {}
+          groups: {}
     type: NORMAL
 users:
   admin:
