@@ -24,7 +24,8 @@ projects:
     public: false
     type: NORMAL
     permissions:
-      groups: {}
+      groups:
+        stash-users: "PROJECT_ADMIN"
     repos:
       repo1:
         forkable: true

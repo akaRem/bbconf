@@ -4,9 +4,11 @@ const { Groups } = require("./handlers/groups");
 const { Projects } = require("./handlers/projects");
 
 class Application {
-  constructor(options) {
+  constructor(baseDir, options) {
+    this.baseDir = baseDir;
     this.local = options.config;
     this.remote = {};
+    this.connection = options.connection;
     this.client = new Client(options.connection);
 
     this.users = new Users(this);

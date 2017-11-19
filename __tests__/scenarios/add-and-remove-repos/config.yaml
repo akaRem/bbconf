@@ -1,6 +1,7 @@
 ---
 connection:
   user: admin
+  email: admin@example.com
   password: admin
   baseUrl: http://localhost:7995/bitbucket
 
@@ -12,7 +13,6 @@ config:
     stash-users:
       members:
       - admin
-      - user
       permission: LICENSED_USER
 
   projects:
@@ -22,8 +22,28 @@ config:
       description: Description for Sample Project
       name: Extra project
       public: false
+      permissions:
+        groups:
+          stash-users: PROJECT_ADMIN
       repos:
         repo1:
           forkable: true
           public: false
           scmId: git
+
+          init: |
+            #! /bin/bash
+            set -ex
+            env
+
+            mkdir repo
+            pushd repo
+              git init
+              git config user.name "${BBCONF_USER}"
+              git config user.email "${BBCONF_USER_EMAIL}"
+              git commit --allow-empty -m "Init repo"
+              git branch extra-branch
+              git remote add origin "http://${BBCONF_USER}:${BBCONF_PASSWORD}@localhost:7995/bitbucket/scm/${BBCONF_PROJECT_KEY}/${BBCONF_REPO_SLUG}.git"
+              git push -u origin master
+              git push -u origin extra-branch
+            popd repo

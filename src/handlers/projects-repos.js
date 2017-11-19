@@ -1,8 +1,9 @@
 const { diffIgnoreableObjects } = require("../util");
-
+const { Init } = require("./projects-repos-init");
 class Repos {
   constructor(app) {
     this.app = app;
+    this.init = new Init(this.app);
   }
 
   get client() {
@@ -44,10 +45,11 @@ class Repos {
       );
       for (const slug of toAdd) {
         const { scmId, forkable } = local[slug];
-        this.createRepo(key, slug, {
+        await this.createRepo(key, slug, {
           scmId,
           forkable
         });
+        await this.init.apply(key, slug, local[slug]);
       }
 
       for (const slug of toRemove) {

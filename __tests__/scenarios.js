@@ -18,15 +18,21 @@ describe("Scenarios bundle", async () => {
       // TODO
 
       // 2. Simulate existing state via calling "apply" with provided config
-      const setupApp = new Application(loadYaml(baseDir, "setup.yaml"));
+      const setupApp = new Application(
+        baseDir,
+        loadYaml(baseDir, "setup.yaml")
+      );
       await setupApp.apply();
 
       // 3. Run scenario
-      const app = new Application(loadYaml(baseDir, "config.yaml"));
+      const app = new Application(baseDir, loadYaml(baseDir, "config.yaml"));
       await app.apply();
 
       // 4. Get state and compare it with expectations
-      const finalApp = new Application(loadYaml(baseDir, "config.yaml"));
+      const finalApp = new Application(
+        baseDir,
+        loadYaml(baseDir, "config.yaml")
+      );
       await finalApp.fetch();
       expect(finalApp.remote).toEqual(loadYaml(baseDir, "expectedState.yaml"));
 
