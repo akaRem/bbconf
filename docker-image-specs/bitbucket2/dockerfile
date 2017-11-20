@@ -1,0 +1,19 @@
+FROM centos:7
+
+ENV JAVA_HOME=/usr/lib/jvm/jre-openjdk
+RUN yum -y install which java-1.8.0-openjdk wget
+
+RUN yum install -y https://centos7.iuscommunity.org/ius-release.rpm && \
+    yum --enablerepo=ius-archive install -y git2u
+
+RUN cd /etc/yum.repos.d/ && wget http://sdkrepo.atlassian.com/atlassian-sdk-stable.repo && \
+    yum install -y atlassian-plugin-sdk
+
+VOLUME /root/.m2
+EXPOSE 7990
+
+CMD atlas-run-standalone \
+    --product bitbucket \
+    --http-port 7990 \
+    --maven-plugin-version 6.3.4 \
+    --jvmargs "-Datlassian.upm.on.demand=false -DallowGoogleTracking=false" -DskipAllPrompts=true -X -N

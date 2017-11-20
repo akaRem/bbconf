@@ -7,7 +7,11 @@
   "license": "MIT",
   "scripts": {
     "test": "jest",
-    "lint": "eslint ./src ./__tests__"
+    "lint": "eslint ./src ./__tests__",
+    "docker:bb:build":
+      "cd docker-image-specs/bitbucket2 && docker build -t local/bitbucket-dev .",
+    "docker:bb:run":
+      "docker run -p 7995:7990 -v ~/.m2:/root/.m2 -it local/bitbucket-dev"
   },
   "dependencies": {
     "isomorphic-fetch": "^2.2.1",
@@ -31,13 +35,8 @@
     "globals": {
       "NODE_ENV": "test"
     },
-    "moduleFileExtensions": [
-      "js"
-    ],
-    "moduleDirectories": [
-      "node_modules",
-      "src"
-    ]
+    "moduleFileExtensions": ["js"],
+    "moduleDirectories": ["node_modules", "src"]
   },
   "eslintConfig": {
     "parser": "babel-eslint",
@@ -46,14 +45,8 @@
       "es6": true,
       "jest/globals": true
     },
-    "extends": [
-      "eslint:recommended",
-      "plugin:jest/recommended"
-    ],
-    "plugins": [
-      "jest",
-      "prettier"
-    ],
+    "extends": ["eslint:recommended", "plugin:jest/recommended"],
+    "plugins": ["jest", "prettier"],
     "rules": {
       "prettier/prettier": "error"
     }
