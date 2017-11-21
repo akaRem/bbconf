@@ -1,82 +1,60 @@
 ---
-groups:
-  stash-users:
-    members:
-    - admin
-    permission: LICENSED_USER
-projects:
-  PROJECT_1:
-    description: 'Default configuration project #1'
-    name: Project 1
-    permissions:
-      users:
-        admin: PROJECT_ADMIN
-      groups: {}
-    public: false
-    repos:
-      rep_1:
-        forkable: true
-        public: false
-        scmId: git
-        state: AVAILABLE
-        permissions:
-          users: {}
-          groups: {}
-    type: NORMAL
-  PROJECT:
-    description: Description for Sample Project
-    name: PROJECT
-    public: false
-    type: NORMAL
-    permissions:
-      users: {}
-      groups: {}
-    repos:
-      new_w_permissions:
-        forkable: true
-        public: false
-        scmId: git
-        state: AVAILABLE
-        permissions:
-          groups: {}
-          users:
-            user-read: REPO_READ
-            user-write: REPO_WRITE
-            user-admin: REPO_ADMIN
-      existing_permissions_to_remove:
-        forkable: true
-        public: false
-        scmId: git
-        state: AVAILABLE
-        permissions:
-          groups: {}
-          users: {}
-      existing_to_add_permissions:
-        forkable: true
-        public: false
-        scmId: git
-        state: AVAILABLE
-        permissions:
-          groups: {}
-          users:
-            user-read: REPO_READ
-            user-write: REPO_WRITE
-            user-admin: REPO_ADMIN
-users:
-  admin:
-    displayName: Administrator
-    email: admin@example.com
-    permission: SYS_ADMIN
-    sshKeys: []
-  user-read:
-    displayName: User1
-    email: user@example.com
-    sshKeys: []
-  user-write:
-    displayName: User2
-    email: user@example.com
-    sshKeys: []
-  user-admin:
-    displayName: User3
-    email: user@example.com
-    sshKeys: []
+- users:
+  - admin:
+      displayName: Administrator
+      email: admin@example.com
+      permission: SYS_ADMIN
+      sshKeys: []
+  - user-admin:
+      displayName: User3
+      email: user@example.com
+      sshKeys: []
+  - user-read:
+      displayName: User1
+      email: user@example.com
+      sshKeys: []
+  - user-write:
+      displayName: User2
+      email: user@example.com
+      sshKeys: []
+- groups: []
+- projects:
+  - PROJECT:
+      description: Description for Sample Project
+      name: PROJECT
+      public: false
+      type: NORMAL
+      permissions:
+        users: {}
+        groups: {}
+      repos:
+      - existing_permissions_to_remove:
+          forkable: true
+          public: false
+          scmId: git
+          state: AVAILABLE
+          permissions:
+            groups: {}
+            users: {}
+      - existing_to_add_permissions:
+          forkable: true
+          public: false
+          scmId: git
+          state: AVAILABLE
+          permissions:
+            groups: {}
+            users:
+              user-read: REPO_READ
+              user-write: REPO_WRITE
+              user-admin: REPO_ADMIN
+      - new_w_permissions:
+          forkable: true
+          public: false
+          scmId: git
+          state: AVAILABLE
+          permissions:
+            groups: {}
+            users:
+              user-read: REPO_READ
+              user-write: REPO_WRITE
+              user-admin: REPO_ADMIN

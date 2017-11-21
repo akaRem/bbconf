@@ -1,50 +1,27 @@
 ---
-groups:
-  stash-users:
-    members:
-    - admin
-    permission: LICENSED_USER
-projects:
-  PROJECT_1:
-    description: 'Default configuration project #1'
-    name: Project 1
-    public: false
-    type: NORMAL
-    permissions:
-      users:
-        admin: PROJECT_ADMIN
-      groups: {}
-    repos:
-      rep_1:
-        forkable: true
-        public: false
-        scmId: git
-        state: AVAILABLE
-        permissions:
-          users: {}
-          groups: {}
-  EXTRA_PROJECT:
-    description: Description for Sample Project
-    name: Extra project
-    public: false
-    type: NORMAL
-    permissions:
-      users: {}
-      groups:
-        stash-users: "PROJECT_ADMIN"
-    repos:
-      repo1:
-        forkable: true
-        public: false
-        scmId: git
-        state: AVAILABLE
-        permissions:
-          users: {}
-          groups: {}
-
-users:
-  admin:
-    displayName: Administrator
-    email: admin@example.com
-    permission: SYS_ADMIN
-    sshKeys: []
+- users:
+  - admin:
+      displayName: Administrator
+      email: admin@example.com
+      permission: SYS_ADMIN
+      sshKeys: []
+- groups: []
+- projects:
+  - PROJECT:
+      description: Description for Sample Project
+      name: Extra project
+      public: false
+      type: NORMAL
+      permissions:
+        users:
+          admin: PROJECT_ADMIN  # FIXME
+        groups: {}
+      repos:
+      - repo1:
+          forkable: true
+          public: false
+          scmId: git
+          state: AVAILABLE
+          permissions:
+            users: {}
+            groups: {}

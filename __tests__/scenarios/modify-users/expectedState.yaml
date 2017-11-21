@@ -1,43 +1,25 @@
 ---
-groups:
-  stash-users:
-    members:
-    - admin
-    permission: LICENSED_USER
-projects:
-  PROJECT_1:
-    description: 'Default configuration project #1'
-    name: Project 1
-    public: false
-    type: NORMAL
-    permissions:
-      groups: {}
-      users:
-        admin: PROJECT_ADMIN
-    repos:
-      rep_1:
-        forkable: true
-        public: false
-        scmId: git
-        state: AVAILABLE
-        permissions:
-          users: {}
-          groups: {}
-users:
-  admin:
-    displayName: Administrator
-    email: admin@example.com
-    permission: SYS_ADMIN
-    sshKeys: []
-  user1:
-    displayName: User1_chg
-    email: user1@example.com
-    sshKeys: []
-  user2:
-    displayName: User2
-    email: user2_chg@example.com
-    sshKeys: []
-  user3:
-    displayName: User3_chg
-    email: user3_chg@example.com
-    sshKeys: []
+- users:
+  - admin:
+      displayName: Administrator
+      email: admin@example.com
+      permission: SYS_ADMIN
+      sshKeys: []
+  - user1:
+      displayName: User1_chg
+      email: user1@example.com
+      sshKeys: []
+  - user2:
+      displayName: User2
+      email: user2_chg@example.com
+      sshKeys: []
+  - user3:
+      displayName: User3_chg
+      email: user3_chg@example.com
+      sshKeys: []
+- groups:
+  - stash-users:
+      members:
+      - admin
+      permission: LICENSED_USER
+- projects: []

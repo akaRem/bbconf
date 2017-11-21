@@ -1,76 +1,57 @@
 ---
-groups:
-  group-admin:
-    members:
-    - admin
-  group-read:
-    members:
-    - admin
-  group-write:
-    members:
-    - admin
-
-projects:
-  PROJECT_1:
-    description: 'Default configuration project #1'
-    name: Project 1
-    permissions:
-      users:
-        admin: PROJECT_ADMIN
-      groups: {}
-    public: false
-    repos:
-      rep_1:
-        forkable: true
-        public: false
-        scmId: git
-        state: AVAILABLE
-        permissions:
-          users: {}
-          groups: {}
-    type: NORMAL
-  PROJECT:
-    description: Description for Sample Project
-    name: PROJECT
-    public: false
-    type: NORMAL
-    permissions:
-      users: {}
-      groups: {}
-    repos:
-      new_w_permissions:
-        forkable: true
-        public: false
-        scmId: git
-        state: AVAILABLE
-        permissions:
-          users: {}
-          groups:
-            group-read: REPO_READ
-            group-write: REPO_WRITE
-            group-admin: REPO_ADMIN
-      existing_permissions_to_remove:
-        forkable: true
-        public: false
-        scmId: git
-        state: AVAILABLE
-        permissions:
-          groups: {}
-          users: {}
-      existing_to_add_permissions:
-        forkable: true
-        public: false
-        scmId: git
-        state: AVAILABLE
-        permissions:
-          users: {}
-          groups:
-            group-read: REPO_READ
-            group-write: REPO_WRITE
-            group-admin: REPO_ADMIN
-users:
-  admin:
-    displayName: Administrator
-    email: admin@example.com
-    permission: SYS_ADMIN
-    sshKeys: []
+- users:
+  - admin:
+      displayName: Administrator
+      email: admin@example.com
+      permission: SYS_ADMIN
+      sshKeys: []
+- groups:
+  - group-admin:
+      members:
+      - admin
+  - group-read:
+      members:
+      - admin
+  - group-write:
+      members:
+      - admin
+- projects:
+  - PROJECT:
+      description: Description for Sample Project
+      name: PROJECT
+      public: false
+      type: NORMAL
+      permissions:
+        users: {}
+        groups: {}
+      repos:
+      - existing_permissions_to_remove:
+          forkable: true
+          public: false
+          scmId: git
+          state: AVAILABLE
+          permissions:
+            groups: {}
+            users: {}
+      - existing_to_add_permissions:
+          forkable: true
+          public: false
+          scmId: git
+          state: AVAILABLE
+          permissions:
+            users: {}
+            groups:
+              group-read: REPO_READ
+              group-write: REPO_WRITE
+              group-admin: REPO_ADMIN
+      - new_w_permissions:
+          forkable: true
+          public: false
+          scmId: git
+          state: AVAILABLE
+          permissions:
+            users: {}
+            groups:
+              group-read: REPO_READ
+              group-write: REPO_WRITE
+              group-admin: REPO_ADMIN

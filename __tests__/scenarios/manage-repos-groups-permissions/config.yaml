@@ -5,23 +5,28 @@ connection:
   baseUrl: http://localhost:7995/bitbucket
 
 config:
-  users:
-    admin: ignore
-    user-read: ignore
-    user-write: ignore
-    user-admin: ignore
+- users:
+  - admin: ignore
+  - user-read: ignore
+  - user-write: ignore
+  - user-admin: ignore
+- groups: ignore
 
-  groups: ignore
+- projects:
 
-  projects:
-    PROJECT_1: ignore
-
-    PROJECT:
+  - PROJECT:
       description: Description for Sample Project
       name: PROJECT
       public: false
       repos:
-        new_w_permissions:
+      - existing_permissions_to_remove:
+          forkable: true
+          public: false
+          scmId: git
+          permissions:
+            users: {}
+            groups: {}
+      - existing_to_add_permissions:
           forkable: true
           public: false
           scmId: git
@@ -31,14 +36,7 @@ config:
               group-read: REPO_READ
               group-write: REPO_WRITE
               group-admin: REPO_ADMIN
-        existing_permissions_to_remove:
-          forkable: true
-          public: false
-          scmId: git
-          permissions:
-            users: {}
-            groups: {}
-        existing_to_add_permissions:
+      - new_w_permissions:
           forkable: true
           public: false
           scmId: git

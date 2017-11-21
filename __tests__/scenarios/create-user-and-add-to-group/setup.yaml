@@ -4,12 +4,11 @@ connection:
   baseUrl: http://localhost:7995/bitbucket
 
 config:
-
-  users:
-    admin: ignore
-
-  groups:
-    stash-users: ignore
-
-  projects:
-    PROJECT_1: ignore
+- users:
+  - admin: ignore
+- groups:
+  - stash-users:
+      members:
+      - admin
+      permission: LICENSED_USER
+- projects: []

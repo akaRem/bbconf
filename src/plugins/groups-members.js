@@ -9,15 +9,20 @@ class Members {
     return this.app.client;
   }
 
-  async fetch(groupName, obj = {}) {
+  async fetchMembers(groupName) {
     const data = await this.client.getAll(
       "rest/api/1.0/admin/groups/more-members",
       {
         query: { context: groupName }
       }
     );
-    obj[groupName].members = data.values.map(({ slug }) => slug);
-    return obj;
+    return data.values.map(({ slug }) => slug);
+  }
+
+  async fetch(path, item) {
+    await this.app.match(["groups", ":arg"], path, async groupName => {
+      item.members = await this.fetchMembers(groupName);
+    });
   }
 
   async addGroupMembers(groupName, members) {
@@ -36,19 +41,24 @@ class Members {
     }
   }
 
-  async apply(groupName, local, remote) {
-    if (local !== "ignore") {
-      const [usersToAdd, , usersToRemove] = diffLists(
-        local || [],
-        remote || []
-      );
+  async apply(path, local, remote) {
+    await this.app.match(
+      ["groups", ":arg", "members"],
+      path,
+      async groupName => {
+        if (local === "ignore") {
+          return;
+        }
+        const [usersToAdd, , usersToRemove] = diffLists(
+          local || [],
+          remote || []
+        );
 
-      await this.addGroupMembers(groupName, usersToAdd);
-      await this.removeGroupMembers(groupName, usersToRemove);
-    }
+        await this.addGroupMembers(groupName, usersToAdd);
+        await this.removeGroupMembers(groupName, usersToRemove);
+      }
+    );
   }
 }
 
-module.exports = {
-  Members
-};
+module.exports = app => new Members(app);

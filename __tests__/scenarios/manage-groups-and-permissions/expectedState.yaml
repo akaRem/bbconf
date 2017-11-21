@@ -1,50 +1,27 @@
 ---
-groups:
-  stash-users:
-    members:
-    - admin
-    permission: LICENSED_USER
-  group-to-remove-users:
-    members: []
-    permission: PROJECT_CREATE
-  group-to-remove-permission:
-    members:
-    - admin
-  group-to-remove-all:
-    members: []
-  group-to-change-permission:
-    members:
-    - admin
-    permission: ADMIN
-  added-empty-group:
-    members: []
-  added-group-with-user-and-perm:
-    members:
-    - admin
-    permission: PROJECT_CREATE
-
-projects:
-  PROJECT_1:
-    description: 'Default configuration project #1'
-    name: Project 1
-    public: false
-    type: NORMAL
-    permissions:
-      users:
-        admin: PROJECT_ADMIN
-      groups: {}
-    repos:
-      rep_1:
-        forkable: true
-        public: false
-        scmId: git
-        state: AVAILABLE
-        permissions:
-          users: {}
-          groups: {}
-users:
-  admin:
-    displayName: Administrator
-    email: admin@example.com
-    permission: SYS_ADMIN
-    sshKeys: []
+- users:
+  - admin:
+      displayName: Administrator
+      email: admin@example.com
+      permission: SYS_ADMIN
+      sshKeys: []
+- groups:
+  - added-empty-group:
+      members: []
+  - added-group-with-user-and-perm:
+      members:
+      - admin
+      permission: PROJECT_CREATE
+  - group-to-change-permission:
+      members:
+      - admin
+      permission: ADMIN
+  - group-to-remove-all:
+      members: []
+  - group-to-remove-permission:
+      members:
+      - admin
+  - group-to-remove-users:
+      members: []
+      permission: PROJECT_CREATE
+- projects: []

@@ -1,49 +1,28 @@
 ---
-groups:
-  stash-users:
-    members:
-    - admin
-    permission: LICENSED_USER
-projects:
-  PROJECT_1:
-    description: 'Default configuration project #1'
-    name: Project 1
-    public: false
-    type: NORMAL
-    permissions:
-      users:
-        admin: PROJECT_ADMIN
-      groups: {}
-    repos:
-      rep_1:
-        forkable: true
-        public: false
-        scmId: git
-        state: AVAILABLE
-        permissions:
-          users: {}
-          groups: {}
-  PROJECT_TO_ADD:
-    description: Description for Sample Project
-    name: PROJECT_TO_ADD
-    public: false
-    type: NORMAL
-    repos: {}
-    permissions:
-      users: {}
-      groups: {}
-  PROJECT_TO_CHANGE:
-    description: Description for Sample Project - changed
-    name: PROJECT_TO_CHANGE - changed
-    public: false
-    type: NORMAL
-    repos: {}
-    permissions:
-      users: {}
-      groups: {}
-users:
-  admin:
-    displayName: Administrator
-    email: admin@example.com
-    permission: SYS_ADMIN
-    sshKeys: []
+- users:
+  - admin:
+      displayName: Administrator
+      email: admin@example.com
+      permission: SYS_ADMIN
+      sshKeys: []
+- groups: []
+- projects:
+  - PROJECT_TO_ADD:
+      description: Description for Sample Project
+      name: PROJECT_TO_ADD
+      public: false
+      type: NORMAL
+      repos: []
+      permissions:
+        users:
+          admin: PROJECT_ADMIN # FIXME should be removed
+        groups: {}
+  - PROJECT_TO_CHANGE:
+      description: Description for Sample Project - changed
+      name: PROJECT_TO_CHANGE - changed
+      public: false
+      type: NORMAL
+      repos: []
+      permissions:
+        users: {}
+        groups: {}

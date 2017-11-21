@@ -5,26 +5,22 @@ connection:
   baseUrl: http://localhost:7995/bitbucket
 
 config:
-  users:
-    admin: ignore
-
-  groups:
-    stash-users: ignore
-    group-to-remove-users:
+- users:
+  - admin: ignore
+- groups:
+  - group-to-remove-users:
       permission: PROJECT_CREATE
-    group-to-remove-permission:
+  - group-to-remove-permission:
       members:
       - admin
-    group-to-remove-all: {}
-    group-to-change-permission:
+  - group-to-remove-all: {}
+  - group-to-change-permission:
       members:
       - admin
       permission: ADMIN
-    added-empty-group: {}
-    added-group-with-user-and-perm:
+  - added-empty-group: {}
+  - added-group-with-user-and-perm:
       members:
       - admin
       permission: PROJECT_CREATE
-
-  projects:
-    PROJECT_1: ignore
+- projects: []

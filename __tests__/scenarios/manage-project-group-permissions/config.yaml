@@ -3,47 +3,37 @@ connection:
   user: admin
   password: admin
   baseUrl: http://localhost:7995/bitbucket
-
 config:
-  users:
-    admin: ignore
-
-  groups:
-    group-read:
+- users:
+  - admin: ignore
+- groups:
+  - group-read:
       members:
       - admin
-    group-write:
+  - group-write:
       members:
       - admin
-      - admin
-    group-admin:
+  - group-admin:
       members:
       - admin
-
-  projects:
-    PROJECT_1: ignore
-
-    NEW_W_GROUPS:
+- projects:
+  - NEW_W_GROUPS:
       description: Description for Sample Project
       name: SampleProject
       public: false
-
       permissions:
         groups:
           group-read: PROJECT_READ
           group-write: PROJECT_WRITE
           group-admin: PROJECT_ADMIN
-
-    EXISTING_GROUPS_TO_REMOVE:
+  - EXISTING_GROUPS_TO_REMOVE:
       description: Description for Sample Project
       name: EXISTING_GROUPS_TO_REMOVE
       public: false
-
-    EXISTING_TO_ADD_GROUPS:
+  - EXISTING_TO_ADD_GROUPS:
       description: Description for Sample Project
       name: EXISTING_TO_ADD_GROUPS
       public: false
-
       permissions:
         groups:
           group-read: PROJECT_READ

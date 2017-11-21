@@ -6,19 +6,11 @@ connection:
   baseUrl: http://localhost:7995/bitbucket
 
 config:
-  users:
-    admin: ignore
-
-  groups:
-    stash-users:
-      members:
-      - admin
-      permission: LICENSED_USER
-
-  projects:
-    PROJECT_1: ignore
-
-    EXTRA_PROJECT:
+- users:
+  - admin: ignore
+- groups: []
+- projects:
+  - PROJECT:
       description: Description for Sample Project
       name: Extra project
       public: false
@@ -26,7 +18,7 @@ config:
         groups:
           stash-users: PROJECT_ADMIN
       repos:
-        repo1:
+      - repo1:
           forkable: true
           public: false
           scmId: git
