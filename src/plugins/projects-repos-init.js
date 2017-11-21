@@ -8,9 +8,6 @@ class Init {
     this.app = app;
   }
 
-  get client() {
-    return this.app.client;
-  }
   fetch() {}
   async apply(path, local, remote) {
     await this.app.match(

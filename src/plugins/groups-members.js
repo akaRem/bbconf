@@ -24,7 +24,7 @@ class Members {
   }
 
   async addGroupMembers(groupName, members) {
-    for (const userSlug of members || []) {
+    for (const userSlug of members) {
       await this.client.post("rest/api/1.0/admin/groups/add-user", {
         data: { context: groupName, itemName: userSlug }
       });
@@ -32,7 +32,7 @@ class Members {
   }
 
   async removeGroupMembers(groupName, members) {
-    for (const userSlug of members || []) {
+    for (const userSlug of members) {
       await this.client.post("rest/api/1.0/admin/groups/remove-user", {
         data: { context: groupName, itemName: userSlug }
       });
