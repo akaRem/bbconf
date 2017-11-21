@@ -9,19 +9,10 @@ const diffLists = (a, b) => {
   return [onlyInA, both, onlyInB];
 };
 
-const diffIgnoreableObjects = (a, b) => {
-  const toIgnore = Object.keys(a).filter(k => a[k] === "ignore");
-  return diffLists(
-    Object.keys(a).filter(k => !toIgnore.includes(k)),
-    Object.keys(b).filter(k => !toIgnore.includes(k))
-  );
-};
-
 const loadYaml = (...paths) =>
   yaml.safeLoad(fs.readFileSync(path.join(...paths), "utf8"));
 
 module.exports = {
   diffLists,
-  diffIgnoreableObjects,
   loadYaml
 };
