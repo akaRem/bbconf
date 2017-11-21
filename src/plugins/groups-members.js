@@ -1,5 +1,3 @@
-const { diffLists } = require("../util");
-
 class Members {
   constructor(app) {
     this.app = app;
@@ -46,7 +44,7 @@ class Members {
       ["groups", ":arg", "members"],
       path,
       async groupName => {
-        const [usersToAdd, , usersToRemove] = diffLists(
+        const [usersToAdd, , usersToRemove] = this.app.diffLists(
           local || [],
           remote || []
         );

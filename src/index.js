@@ -44,6 +44,7 @@ class Application {
       require("./plugins/projects-repos-init")
     ].map(p => p(this));
     this.sortedMap = sortedMap;
+    this.diffLists = diffLists;
   }
   shouldIgnore(item) {
     return item === "ignore";
