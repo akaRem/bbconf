@@ -17,15 +17,11 @@ class Init {
       ["projects", ":arg", "repos", ":arg"],
       path,
       async (key, repo) => {
-        if (local === "ignore") {
-          return;
-        }
-
         if (remote !== undefined) {
           return;
         }
 
-        if (local.init && local.init !== "ignore") {
+        if (local.init && !this.app.shouldIgnore(local.init)) {
           // FIXME switch to async execution
           const tmpobj = await new Promise((resolve, reject) =>
             tmp.dir(

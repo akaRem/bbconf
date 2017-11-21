@@ -29,9 +29,6 @@ class Groups {
 
   async apply(path, local, remote) {
     await this.app.match(["groups", ":arg"], path, async groupName => {
-      if (local === "ignore") {
-        return;
-      }
       if (remote === undefined) {
         await this.createGroup(groupName);
       } else if (local === undefined) {

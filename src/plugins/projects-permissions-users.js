@@ -51,9 +51,6 @@ class Users {
       ["projects", ":arg", "permissions", "users", ":arg"],
       path,
       async (key, group) => {
-        if (local === "ignore") {
-          return;
-        }
         if (local === undefined) {
           await this.removeProjectUsersPermission(key, group);
         } else if (remote === undefined || local !== remote) {

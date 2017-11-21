@@ -45,9 +45,6 @@ class Permission {
 
   async apply(path, local, remote) {
     await this.app.match(["groups", ":arg", "permission"], path, async name => {
-      if (local === "ignore") {
-        return;
-      }
       if (local === undefined) {
         await this.removePermission(name);
       } else if (remote === undefined || local !== remote) {

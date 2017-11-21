@@ -67,9 +67,6 @@ class Users {
 
   async apply(path, local, remote) {
     await this.app.match(["users", ":arg"], path, async name => {
-      if (local === "ignore") {
-        return;
-      }
       if (remote === undefined) {
         const { email, password, displayName } = local;
         await this.createUser({

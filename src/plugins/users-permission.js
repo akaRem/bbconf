@@ -44,9 +44,6 @@ class Permission {
 
   async apply(path, local, remote) {
     await this.app.match(["users", ":arg", "permission"], path, async name => {
-      if (local === "ignore") {
-        return;
-      }
       if (local === undefined) {
         await this.removeUserPermission(name);
       } else if (remote === undefined || local !== remote) {

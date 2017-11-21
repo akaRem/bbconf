@@ -45,6 +45,9 @@ class Application {
     ].map(p => p(this));
     this.sortedMap = sortedMap;
   }
+  shouldIgnore(item) {
+    return item === "ignore";
+  }
 
   async _decrypt(password) {
     // TODO implement encrypt/decrypt
@@ -94,6 +97,9 @@ class Application {
   }
 
   async traverse2(path, itemA, itemB, cb) {
+    if (this.shouldIgnore(itemA)) {
+      return;
+    }
     await cb(path, itemA, itemB);
     if (
       (sortedMap.isSortedMap(itemA) && sortedMap.isSortedMap(itemB)) ||

@@ -46,9 +46,6 @@ class Members {
       ["groups", ":arg", "members"],
       path,
       async groupName => {
-        if (local === "ignore") {
-          return;
-        }
         const [usersToAdd, , usersToRemove] = diffLists(
           local || [],
           remote || []

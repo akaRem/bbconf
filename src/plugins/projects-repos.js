@@ -39,10 +39,6 @@ class Repos {
       ["projects", ":arg", "repos", ":arg"],
       path,
       async (key, slug) => {
-        if (local === "ignore") {
-          return;
-        }
-
         if (remote === undefined) {
           const { scmId, forkable } = local;
           await this.createRepo(key, slug, {

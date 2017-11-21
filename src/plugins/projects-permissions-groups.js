@@ -59,9 +59,6 @@ class Groups {
       ["projects", ":arg", "permissions", "groups", ":arg"],
       path,
       async (key, group) => {
-        if (local === "ignore") {
-          return;
-        }
         if (local === undefined) {
           await this.removeProjectGroupsPermission(key, group);
         } else if (remote === undefined || local !== remote) {

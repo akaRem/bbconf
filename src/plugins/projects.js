@@ -45,10 +45,6 @@ class Projects {
 
   async apply(path, local, remote) {
     await this.app.match(["projects", ":arg"], path, async key => {
-      if (local === "ignore") {
-        return;
-      }
-
       if (remote === undefined) {
         const { name, description } = local;
         await this.createProject({ key, name, description });
