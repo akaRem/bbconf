@@ -1,5 +1,4 @@
-const { Application } = require("../src");
-const { loadYaml } = require("../src/util");
+const { Application, loadYaml } = require("../src");
 const path = require("path");
 const fs = require("fs");
 

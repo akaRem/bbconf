@@ -1,6 +1,21 @@
 const { Client } = require("./client");
 const isObject = require("isobject");
-const { diffLists } = require("./util");
+
+const yargs = require("yargs");
+const yaml = require("js-yaml");
+const fs = require("fs");
+const path = require("path");
+
+const diffLists = (a, b) => {
+  const onlyInA = a.filter(i => !b.includes(i));
+  const onlyInB = b.filter(i => !a.includes(i));
+  const both = a.filter(i => b.includes(i));
+  return [onlyInA, both, onlyInB];
+};
+
+const loadYaml = (...paths) =>
+  yaml.safeLoad(fs.readFileSync(path.join(...paths), "utf8"));
+
 const sortedMap = {
   getKeys: obj => {
     return obj.map(i => Object.keys(i)[0]);
@@ -163,6 +178,40 @@ class Application {
   }
 }
 
+const cli = async (cwd, args) => {
+  const opts = yargs()
+    .env("BBCONF")
+    .option("c", {
+      alias: "connection",
+      description: "Path to config file",
+      coerce: opt => {
+        return loadYaml(cwd, opt).connection;
+      }
+    })
+    .option("i", {
+      alias: "config",
+      description: "Path to input file",
+      coerce: opt => {
+        return loadYaml(cwd, opt).config;
+      }
+    })
+    .locale("en")
+    .wrap(yargs.terminalWidth())
+    .help()
+    .parse(args);
+  const app = new Application(cwd, opts);
+  await app.apply();
+  return app;
+};
+
 module.exports = {
-  Application
+  cli
+};
+
+if (require.main === module) {
+  cli(path.resolve("."), process.argv.slice(1));
+}
+module.exports = {
+  Application,
+  loadYaml
 };
