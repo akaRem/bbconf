@@ -201,8 +201,13 @@ const cli = async (cwd, args) => {
     .wrap(yargs.terminalWidth())
     .help()
     .parse(args);
-  const app = new Application(cwd, opts);
-  await app.apply();
+  let app;
+  try {
+    app = new Application(cwd, opts);
+    await app.apply();
+  } finally {
+    console.log(require("js-yaml").dump(app.client.audit));
+  }
   return app;
 };
 

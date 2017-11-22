@@ -11,6 +11,11 @@ config:
         groups:
           stash-users: PROJECT_ADMIN
       repos:
+      - jjb:
+          forkable: true
+          public: false
+          scmId: git
+          import: https://github.com/fuel-infra/jenkins-jobs.git
       - repo1:
           forkable: true
           public: false

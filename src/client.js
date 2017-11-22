@@ -56,7 +56,7 @@ class Client {
     return respData;
   }
 
-  async get(apiEndpoint, { data, query }) {
+  async get(apiEndpoint, { data, query } = {}) {
     return await this.req(apiEndpoint, { method: "GET", data, query });
   }
   async getAll(apiEndpoint, { query } = {}) {
