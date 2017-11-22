@@ -44,11 +44,7 @@ class Members {
       ["groups", ":arg", "members"],
       path,
       async groupName => {
-        const [usersToAdd, , usersToRemove] = this.app.diffLists(
-          local || [],
-          remote || []
-        );
-
+        const [usersToAdd, , usersToRemove] = this.app.diffLists(local, remote);
         await this.addGroupMembers(groupName, usersToAdd);
         await this.removeGroupMembers(groupName, usersToRemove);
       }

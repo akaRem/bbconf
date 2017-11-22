@@ -7,6 +7,8 @@ const fs = require("fs");
 const path = require("path");
 
 const diffLists = (a, b) => {
+  a = a || [];
+  b = b || [];
   const onlyInA = a.filter(i => !b.includes(i));
   const onlyInB = b.filter(i => !a.includes(i));
   const both = a.filter(i => b.includes(i));
@@ -204,14 +206,11 @@ const cli = async (cwd, args) => {
   return app;
 };
 
-module.exports = {
-  cli
-};
-
 if (require.main === module) {
   cli(path.resolve("."), process.argv.slice(1));
 }
 module.exports = {
   Application,
-  loadYaml
+  loadYaml,
+  cli
 };

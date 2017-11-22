@@ -40,7 +40,7 @@ class Keys {
 
   async apply(path, local, remote) {
     await this.app.match(["users", ":arg", "sshKeys"], path, async name => {
-      const [toAdd, , toRemove] = this.app.diffLists(local || [], remote || []);
+      const [toAdd, , toRemove] = this.app.diffLists(local, remote);
       await this.addKeys(name, toAdd);
       await this.removekeys(name, toRemove);
     });
