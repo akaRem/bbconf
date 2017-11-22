@@ -1,5 +1,6 @@
 ---
 connection:
   user: admin
+  email: admin@example.com
   password: admin
   baseUrl: http://localhost:7995/bitbucket

@@ -1,28 +1,34 @@
----
 config:
-  users:
-    admin: ignore
-    # change display name
-    user1:
-      displayName: User1_chg
-      email: user1@example.com
-      password: user1
-    # change email
-    user2:
-      displayName: User2
-      email: user2_chg@example.com
-      password: user2
-    # change everything
-    user3:
-      displayName: User3_chg
-      email: user3_chg@example.com
-      password: user3
+- users:
+  - admin: ignore
+- groups: []
+- projects:
+  - PROJECT:
+      description: Description for Sample Project
+      name: Extra project
+      public: false
+      permissions:
+        groups:
+          stash-users: PROJECT_ADMIN
+      repos:
+      - repo1:
+          forkable: true
+          public: false
+          scmId: git
 
-  groups:
-    stash-users:
-      members:
-      - admin
-      permission: LICENSED_USER
+          init: |
+            #! /bin/bash
+            set -ex
+            env
 
-  projects:
-    PROJECT_1: ignore
+            mkdir repo
+            pushd repo
+              git init
+              git config user.name "${BBCONF_USER}"
+              git config user.email "${BBCONF_USER_EMAIL}"
+              git commit --allow-empty -m "Init repo"
+              git branch extra-branch
+              git remote add origin "http://${BBCONF_USER}:${BBCONF_PASSWORD}@localhost:7995/bitbucket/scm/${BBCONF_PROJECT_KEY}/${BBCONF_REPO_SLUG}.git"
+              git push -u origin master
+              git push -u origin extra-branch
+            popd repo
