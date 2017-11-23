@@ -3,9 +3,10 @@ const urljoin = require("url-join");
 const querystring = require("querystring");
 
 class Client {
-  constructor(options) {
+  constructor(app, options) {
+    this.app = app;
+    this.logger = app.logger.getLogger("client");
     this.options = options;
-    this.audit = [];
   }
 
   async req(apiEndpoint, { method, data, query }) {
@@ -33,16 +34,15 @@ class Client {
     });
 
     let respData;
-
     try {
       respData = await response.json();
     } catch (e) {
       // workaround for broken api endpoints such as "admin/groups/add-user",
       // "admin/groups/remove-user" and also generic "skip" for 204 and similar
-      respData = {};
+      respData = null;
     }
 
-    this.audit.push({
+    const details = {
       request: {
         method,
         url,
@@ -52,7 +52,23 @@ class Client {
         status: response.status,
         data: respData
       }
-    });
+    };
+    if (response.status === 200) {
+      this.logger.info(`HTTP - ${method} - ${url}`, details);
+    }
+    if (response.status !== 200) {
+      this.logger.error(
+        `HTTP - ${method} - ${url} - status ${response.status} !== 200`,
+        details
+      );
+    }
+    if (respData === null) {
+      this.logger.error(
+        `HTTP - ${method} - ${url} - response is empty`,
+        details
+      );
+    }
+    // console.log(details);
     return respData;
   }
 

@@ -6,6 +6,8 @@ const yaml = require("js-yaml");
 const fs = require("fs");
 const path = require("path");
 
+const { Logger } = require("./logger");
+
 const diffLists = (a, b) => {
   a = a || [];
   b = b || [];
@@ -43,7 +45,8 @@ class Application {
     this.local = options.config;
     this.remote = {};
     this.connection = options.connection;
-    this.client = new Client(options.connection);
+    this.logger = new Logger({ writeConsole: true, colorize: true });
+    this.client = new Client(this, options.connection);
 
     this.plugins = [
       require("./plugins/users"),
@@ -206,7 +209,7 @@ const cli = async (cwd, args) => {
     app = new Application(cwd, opts);
     await app.apply();
   } finally {
-    console.log(require("js-yaml").dump(app.client.audit));
+    // console.log(require("js-yaml").dump(app.logger.entries));
   }
   return app;
 };

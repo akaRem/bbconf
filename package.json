@@ -12,6 +12,7 @@
     "docker:bb:run": "docker run -p 7995:7990 -v ~/.m2:/root/.m2 -it local/bitbucket-dev"
   },
   "dependencies": {
+    "chalk": "^2.3.0",
     "isobject": "^3.0.1",
     "isomorphic-fetch": "^2.2.1",
     "js-yaml": "^3.10.0",
