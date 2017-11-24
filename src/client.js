@@ -4,7 +4,6 @@ const querystring = require("querystring");
 
 class Client {
   constructor(app, options) {
-    console.log(options);
     this.app = app;
     this.logger = app.logger.getLogger("client");
     this.options = options;
@@ -71,7 +70,6 @@ class Client {
         details
       );
     }
-    // console.log(details);
     return respData;
   }
 

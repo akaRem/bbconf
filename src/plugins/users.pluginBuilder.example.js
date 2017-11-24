@@ -1,5 +1,4 @@
 module.exports = app => {
-  // console.log(app);
   return app
     .plugin("users")
     .addFetchHandler([], async item => {

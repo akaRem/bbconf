@@ -1,6 +1,7 @@
 class Repos {
   constructor(app) {
     this.app = app;
+    this.logger = app.logger.getLogger("project-repos");
   }
 
   get client() {
@@ -86,20 +87,17 @@ class Repos {
         const statuses = resp2.tasks.map(t => t.state);
         if (statuses.some(s => s === "FAILED")) {
           // something went wrong ...
-          // eslint-disable-next-line no-console
-          console.log("something went wrong");
+          this.logger.error("something went wrong");
           break;
         }
         if (statuses.every(s => s === "SUCCESS")) {
           // ok
-          // eslint-disable-next-line no-console
-          console.log("ok");
+          this.logger.info("ok");
           break;
         }
         if (!statuses.every(s => s === "STARTED" || s === "QUEUED")) {
           // ???
-          // eslint-disable-next-line no-console
-          console.log("???");
+          this.logger.error("unexpected task statuses");
           break;
         }
       }
