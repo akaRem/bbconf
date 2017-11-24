@@ -4,6 +4,7 @@ const querystring = require("querystring");
 
 class Client {
   constructor(app, options) {
+    console.log(options);
     this.app = app;
     this.logger = app.logger.getLogger("client");
     this.options = options;
@@ -20,7 +21,9 @@ class Client {
       apiEndpoint,
       query ? "?" + querystring.stringify(query) : ""
     );
-
+    if (this.options.dryRun && method !== "GET") {
+      return;
+    }
     const response = await fetch(url, {
       headers: {
         Accept: "application/json",

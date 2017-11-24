@@ -199,6 +199,11 @@ const cli = async (cwd, args) => {
         return loadYaml(cwd, opt).connection;
       }
     })
+    .option("dryRun", {
+      description: "Just check, dont really change anything",
+      type: "boolean",
+      default: false
+    })
     .option("logger.writeConsole", {
       type: "boolean",
       default: true,
@@ -211,6 +216,9 @@ const cli = async (cwd, args) => {
     })
     .option("logger.outputFile", {
       description: "write full logs into provided file"
+    })
+    .option("export", {
+      description: "Export config of current BB state into this file"
     })
     .option("i", {
       alias: "config",
@@ -225,8 +233,20 @@ const cli = async (cwd, args) => {
     .parse(args);
   let app;
   try {
-    app = new Application(cwd, opts);
-    await app.apply();
+    app = new Application(cwd, {
+      ...opts,
+      connection: {
+        ...(opts.connection || {}),
+        dryRun: opts.dryRun
+      }
+    });
+    if (opts.export) {
+      await app.fetch();
+      fs.writeFileSync(path.join(cwd, opts.export), yaml.dump(app.remote));
+    }
+    if (opts.apply) {
+      await app.apply();
+    }
   } finally {
     if (opts.logger.outputFile) {
       fs.writeFileSync(
