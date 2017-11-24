@@ -45,7 +45,7 @@ class Application {
     this.local = options.config;
     this.remote = {};
     this.connection = options.connection;
-    this.logger = new Logger({ writeConsole: true, colorize: true });
+    this.logger = new Logger(options.logger || {});
     this.client = new Client(this, options.connection);
 
     this.plugins = [
@@ -193,6 +193,19 @@ const cli = async (cwd, args) => {
         return loadYaml(cwd, opt).connection;
       }
     })
+    .option("logger.writeConsole", {
+      type: "boolean",
+      default: true,
+      description: "Write logs in console"
+    })
+    .option("logger.colorize", {
+      type: "boolean",
+      default: true,
+      description: "Write coloured logs in console"
+    })
+    .option("logger.outputFile", {
+      description: "write full logs into provided file"
+    })
     .option("i", {
       alias: "config",
       description: "Path to input file",
@@ -209,7 +222,12 @@ const cli = async (cwd, args) => {
     app = new Application(cwd, opts);
     await app.apply();
   } finally {
-    // console.log(require("js-yaml").dump(app.logger.entries));
+    if (opts.logger.outputFile) {
+      fs.writeFileSync(
+        path.join(cwd, opts.logger.outputFile),
+        yaml.dump(app.logger.entries)
+      );
+    }
   }
   return app;
 };
