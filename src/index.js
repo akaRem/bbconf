@@ -7,6 +7,7 @@ const fs = require("fs");
 const path = require("path");
 
 const { Logger } = require("./logger");
+const PluginFactory = require("./plugin-factory");
 
 const diffLists = (a, b) => {
   a = a || [];
@@ -66,6 +67,11 @@ class Application {
     this.sortedMap = sortedMap;
     this.diffLists = diffLists;
   }
+
+  plugin(name) {
+    return new PluginFactory(this, name);
+  }
+
   shouldIgnore(item) {
     return item === "ignore";
   }
