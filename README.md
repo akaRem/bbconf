@@ -33,6 +33,20 @@ After you have config.yaml that fully satisfies your desired state, apply it:
 
 `node ./src -c connection.yaml -i config.yaml --apply`
 
+### Check changes
+
+Apply with `--export` flag
+
+`node ./src -c connection.yaml -i config.yaml --apply --export before.yaml`
+
+Export one more time (don't `--apply`)
+
+`node ./src -c connection.yaml -i config.yaml --export after.yaml`
+
+Diff with your fav tool, for example
+
+`diff -u before.yaml after.yaml`
+
 ## Limitations
 
 User management is tested for internal bb directory only. This means that bbconf
