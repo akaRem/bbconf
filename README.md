@@ -69,7 +69,7 @@ Build your docker image with BB: `yarn run docker:bb:build`.
 
 Start your docker container with BB: `yarn run docker:bb:run`.
 
-To run tests `yarn run tests`
+To run tests `yarn run test`
 
 To apply example config `node ./src -c example/connection.yaml -i
 example/config.yaml --logger.outputFile bbconf.log --apply`
